@@ -3,7 +3,7 @@ import random
 
 # TODO velikost polja se mora spremeniti, če se spremeni velikost okna
 
-VELIKOST_IGRALNE_PLOSCE = 12
+VELIKOST_IGRALNE_PLOSCE = 5
 
 class Gui():
     # Vpeljemo konstante:
@@ -101,8 +101,13 @@ class Gui():
                 trenutna_vrstica.append(polje)
             self.matrika_polj.append(trenutna_vrstica)
 
+
     def barva_klik(self, indeks_barve):
-        self.logika.spremeni_matriko(indeks_barve)
+        igralec = self.logika.na_potezi
+        self.logika.naredi_potezo(indeks_barve, igralec)
+        self.levi_rezultat, self.desni_rezultat = self.logika.get_rezultat()
+        if self.logika.stanje_igre() != NI_KONEC:
+            print('Zmagal je {}.'.format(self.logika.stanje_igre()))
         return Gui.posodobi(self)
 
 #igralec, ki začne v zgornjem levem kotu
@@ -128,7 +133,7 @@ class Logika():
         self.zgodovina = []
         self.rezultat = (0, 0)
         self.polja_igralec1 = [(0, 0)]
-        self.polja_igralec2 = [(VELIKOST_IGRALNE_PLOSCE, VELIKOST_IGRALNE_PLOSCE)]
+        self.polja_igralec2 = [(VELIKOST_IGRALNE_PLOSCE - 1, VELIKOST_IGRALNE_PLOSCE - 1)]
 
     # funkcija, ki ob začetku nove igre nariše novo igralno ploščo.
     # Ustvarimo matriko vrednosti self.matrika
@@ -146,6 +151,7 @@ class Logika():
             self.plosca.append(vrstica_matrike)
         self.skeniraj_matriko(self.plosca[0][0], IGRALEC_1)
         self.skeniraj_matriko(self.plosca[VELIKOST_IGRALNE_PLOSCE - 1][VELIKOST_IGRALNE_PLOSCE - 1], IGRALEC_2)
+        self.na_potezi = IGRALEC_1
 
     def get_polje(self):
         '''Vrne matriko polja.'''
@@ -164,22 +170,30 @@ class Logika():
     def veljavne_poteze(self):
         """Vrni seznam veljavnih potez."""
         barva_1 = self.plosca[0][0]
-        barva_2 = self.plosca[VELIKOST_IGRALNE_PLOSCE][VELIKOST_IGRALNE_PLOSCE]
-        mozne_poteze = [0, 1, 2, 3, 4, 5].remove(barva_1, barva_2)
-        return mozne_poteze
+        barva_2 = self.plosca[VELIKOST_IGRALNE_PLOSCE - 1][VELIKOST_IGRALNE_PLOSCE - 1]
+        vse_poteze = [0, 1, 2, 3, 4, 5]
+        vse_poteze.remove(barva_1)
+        vse_poteze.remove(barva_2)
+        return vse_poteze
 
     def get_rezultat(self):
         '''Vrne vmesni rezultat.'''
         return self.rezultat
 
     def naredi_potezo(self, p, igralec):
-        """Povleci potezo p, ne naredi nič, če je neveljavna.
-           Vrne stanje_igre() po potezi ali None, ce je poteza neveljavna."""
+        '''Povleci potezo p, ne naredi nič, če je neveljavna.
+           Vrne stanje_igre() po potezi ali None, ce je poteza neveljavna.'''
         izbrana_barva = p
         if izbrana_barva not in self.veljavne_poteze():
             print("Izberi drugo barvo!")
         else:
-            self.spremeni_matriko(self, p)
+            self.spremeni_matriko(p)
+            self.rezultat = (len(self.polja_igralec1), len(self.polja_igralec2))
+            if self.stanje_igre() == NI_KONEC:
+                #Igre ni konec, na potezi je nasprotnik.
+                self.na_potezi = nasprotnik(igralec)
+            else:
+                self.na_potezi = None
 
     def spremeni_matriko(self, p):
         '''Vrne stanje igre po potezi.'''
@@ -193,10 +207,10 @@ class Logika():
         self.skeniraj_matriko(p, igralec)
 
     def skeniraj_matriko(self, p, igralec):
+        '''Pregleda matriko in jo glede na potezo in igralca spremeni.'''
         if igralec == IGRALEC_1:
             polje = (0, 0)
-            a = self.preglej_sosednja_polja(polje, p, [])
-            self.polja_igralec1 = a
+            self.polja_igralec1 = self.preglej_sosednja_polja(polje, p, [])
         else:
             polje = (VELIKOST_IGRALNE_PLOSCE - 1, VELIKOST_IGRALNE_PLOSCE - 1)
             self.polja_igralec2 = self.preglej_sosednja_polja(polje, p, [])
@@ -220,6 +234,22 @@ class Logika():
                 self.preglej_sosednja_polja((i - 1, j), p, polja)
         return polja
 
+    def stanje_igre(self):
+        '''Ugotovi, kakšno je trenutno stanje igre. Vrne:
+            - igralec1, če je igre konec in je zmagal igralec1,
+            - igralec2, če je igre konec in je zmagal igralec2,
+            - neodločeno, če je igre konec in imata igralca enak rezulat,
+            - NI_KONEC, če igre še ni konec.'''
+        rezultat_igr1 = self.rezultat[0]
+        rezultat_igr2 = self.rezultat[1]
+        if rezultat_igr1 + rezultat_igr2 == VELIKOST_IGRALNE_PLOSCE * VELIKOST_IGRALNE_PLOSCE:
+            if rezultat_igr1 > rezultat_igr2:
+                return IGRALEC_1
+            elif rezultat_igr1 < rezultat_igr2:
+                return IGRALEC_2
+            else:
+                return NEODLOCENO
+        return NI_KONEC
 
 
 
