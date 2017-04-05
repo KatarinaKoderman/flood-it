@@ -3,12 +3,12 @@ import random
 
 # TODO velikost polja se mora spremeniti, če se spremeni velikost okna
 
-VELIKOST_IGRALNE_PLOSCE = 5
+VELIKOST_IGRALNE_PLOSCE = 12
 
 class Gui():
     # Vpeljemo konstante:
     VELIKOST_POLJA = 1
-    SEZNAM_BARV = ['deep sky blue', 'yellow', 'chocolate1', 'lawn green', 'maroon1', 'navy']
+    SEZNAM_BARV = ['deep sky blue', 'yellow', 'snow4', 'lawn green', 'maroon1', 'navy']
 
     # Vpeljemo parametre:
     levi_rezultat = 0
@@ -21,25 +21,29 @@ class Gui():
 
         # narišemo igralno okno
         self.okno = tkinter.Canvas(master)
-        self.okno.grid(row=0, column=1)
+        self.okno.grid(row=1, column=1)
+
+        #ustvarimo label z opozorili
+        self.opozorila = tkinter.Label(master, text="", font=("Comic Sans", 16))
+        self.opozorila.grid(row=0, column=1, pady=0, padx=0)
 
         # ustvarimo okvir, v katerem bodo gumbi
         gumbi = tkinter.Frame(master)
-        gumbi.grid(row=1, column=1)
+        gumbi.grid(row=2, column=1)
         # nariše gumbe
         for i in range(len(Gui.SEZNAM_BARV)):
             tkinter.Button(gumbi, width=5 * Gui.VELIKOST_POLJA, height=2 * Gui.VELIKOST_POLJA,
                            background=Gui.SEZNAM_BARV[i], command=lambda i=i: self.barva_klik(i)).pack(side=tkinter.LEFT, padx=10, pady=5)
 
         # levo in desno postavimo label-a z vmesnim rezultatom
-        self.leva_vrednost = tkinter.Label(master, text=self.levi_rezultat, font=("Comic Sans", 16))
-        self.leva_vrednost.grid(row=0, column=0, padx=20)
-        self.desna_vrednost = tkinter.Label(master, text=self.desni_rezultat, font=("Comic Sans", 16))
-        self.desna_vrednost.grid(row=0, column=2, padx=20)
+        self.leva_vrednost = tkinter.Label(master, text=self.levi_rezultat, font=("Comic Sans", 16), width=3)
+        self.leva_vrednost.grid(row=1, column=0, padx=20)
+        self.desna_vrednost = tkinter.Label(master, text=self.desni_rezultat, font=("Comic Sans", 16), width=3)
+        self.desna_vrednost.grid(row=1, column=2, padx=20)
 
         # okvir za igralno polje:
         self.plosca = tkinter.Frame(master)
-        self.plosca.grid(row=0, column=1)
+        self.plosca.grid(row=1, column=1)
 
         # nariše igralno polje
         self.narisi_polje()
@@ -53,23 +57,6 @@ class Gui():
         menu_igra.add_command(label="Proti računalniku", command=lambda: self.narisi_polje())#zaenkrat samo narišeta novo polje
         menu_igra.add_command(label="Proti človeku", command=lambda: self.narisi_polje())
 
-    # funkcija, ki nastavi matriko z vrednostmi
-    def set_matrika(self, matrika):
-        self.matrika = matrika
-
-    # funkcija, ki nam vrne trenutno matriko vrednosti
-    def get_matrika(self):
-        return self.matrika
-
-    # funkcija, ki nastavi rezultate:
-    def set_rezultat(self, levi_rezultat, desni_rezultat):
-        self.levi_rezultat = levi_rezultat
-        self.desni_rezultat = desni_rezultat
-
-    # funkcija, ki nam vrne trenutni rezultat
-    def get_rezultat(self):
-        return (self.levi_rezultat, self.desni_rezultat)
-
     # funkcija, ki po potezi popravi igralno ploščo
     def posodobi(self):
         for vrstica in range(VELIKOST_IGRALNE_PLOSCE):
@@ -77,6 +64,14 @@ class Gui():
                 self.matrika_polj[vrstica][stolpec].config(bg=Gui.SEZNAM_BARV[self.matrika[vrstica][stolpec]])
         self.leva_vrednost.config(text=self.levi_rezultat)
         self.desna_vrednost.config(text=self.desni_rezultat)
+        print (self.logika.stanje_igre())
+        if self.logika.stanje_igre() == NI_KONEC:
+            self.opozorila.config(text="Na potezi je igralec {}".format(self.logika.na_potezi))
+        elif self.logika.stanje_igre() == NEODLOCENO:
+            self.opozorila.config(text="Konec igre. Igra je neodločena.")
+        else:
+            self.opozorila.config(text="Konec igre. Zmagal je igralec {}.".format(self.logika.stanje_igre()))
+
 
     # funkcija, ki ob začetku nove igre nariše novo igralno ploščo.
     # Ustvarimo dve matriki:
@@ -85,11 +80,12 @@ class Gui():
     def narisi_polje(self):
         vrstice = VELIKOST_IGRALNE_PLOSCE
         stolpci = VELIKOST_IGRALNE_PLOSCE
+        self.opozorila.config(text="Na potezi je igralec 1")
         self.logika.narisi_polje()
         self.matrika_polj = [] #matrika kvadratov
         self.matrika = self.logika.get_polje()
-        self.levi_rezultat = self.logika.get_rezultat()[0]
-        self.desni_rezultat = self.logika.get_rezultat()[1]
+        self.leva_vrednost.config(text=self.logika.levi_rezultat)
+        self.desna_vrednost.config(text=self.logika.desni_rezultat)
         for vrstica in range(vrstice):
             trenutna_vrstica = [] # vrstica matrike matrika_polj
             vrstica_matrike = self.matrika[vrstica]  # vrstica matrike matrika
@@ -103,12 +99,15 @@ class Gui():
 
 
     def barva_klik(self, indeks_barve):
-        igralec = self.logika.na_potezi
-        self.logika.naredi_potezo(indeks_barve, igralec)
-        self.levi_rezultat, self.desni_rezultat = self.logika.get_rezultat()
-        if self.logika.stanje_igre() != NI_KONEC:
-            print('Zmagal je {}.'.format(self.logika.stanje_igre()))
-        return Gui.posodobi(self)
+        if indeks_barve not in self.logika.veljavne_poteze():
+            self.opozorila.config(text="Izberi drugo barvo!")
+        else:
+            igralec = self.logika.na_potezi
+            self.logika.naredi_potezo(indeks_barve, igralec)
+            self.levi_rezultat, self.desni_rezultat = self.logika.get_rezultat()
+            if self.logika.stanje_igre() != NI_KONEC:
+                print('Zmagal je {}.'.format(self.logika.stanje_igre()))
+            return Gui.posodobi(self)
 
 #igralec, ki začne v zgornjem levem kotu
 IGRALEC_1 = "1"
@@ -181,14 +180,13 @@ class Logika():
         '''Vrne vmesni rezultat.'''
         return self.rezultat
 
-    def naredi_potezo(self, p, igralec):
+    def naredi_potezo(self, izbrana_barva, igralec):
         '''Povleci potezo p, ne naredi nič, če je neveljavna.
            Vrne stanje_igre() po potezi ali None, ce je poteza neveljavna.'''
-        izbrana_barva = p
         if izbrana_barva not in self.veljavne_poteze():
             print("Izberi drugo barvo!")
         else:
-            self.spremeni_matriko(p)
+            self.spremeni_matriko(izbrana_barva)
             self.rezultat = (len(self.polja_igralec1), len(self.polja_igralec2))
             if self.stanje_igre() == NI_KONEC:
                 #Igre ni konec, na potezi je nasprotnik.
