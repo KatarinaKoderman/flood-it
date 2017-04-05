@@ -173,7 +173,8 @@ class Logika():
         barva_2 = self.plosca[VELIKOST_IGRALNE_PLOSCE - 1][VELIKOST_IGRALNE_PLOSCE - 1]
         vse_poteze = [0, 1, 2, 3, 4, 5]
         vse_poteze.remove(barva_1)
-        vse_poteze.remove(barva_2)
+        if barva_1 != barva_2: #s tem se izognemo napaki, če imata igralca na začetku enako barvo
+            vse_poteze.remove(barva_2)
         return vse_poteze
 
     def get_rezultat(self):
@@ -250,7 +251,6 @@ class Logika():
             else:
                 return NEODLOCENO
         return NI_KONEC
-
 
 
 root = tkinter.Tk()
