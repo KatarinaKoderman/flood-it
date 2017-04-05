@@ -27,13 +27,15 @@ class Gui():
         gumbi = tkinter.Frame(master)
         gumbi.grid(row=1, column=1)
         # nariše gumbe
-        for barva in Gui.SEZNAM_BARV:
+        for i in range(len(Gui.SEZNAM_BARV)):
             tkinter.Button(gumbi, width=5 * Gui.VELIKOST_POLJA, height=2 * Gui.VELIKOST_POLJA,
-                           background=barva, command=self.barva_klik(barva)).pack(side=tkinter.LEFT, padx=10, pady=5)
+                           background=Gui.SEZNAM_BARV[i], command=lambda i=i: self.barva_klik(i)).pack(side=tkinter.LEFT, padx=10, pady=5)
 
         # levo in desno postavimo label-a z vmesnim rezultatom
-        self.leva_vrednost = tkinter.Label(master, text=self.levi_rezultat, font=("Comic Sans", 16)).grid(row=0, column=0, padx=20)
-        self.desna_vrednost = tkinter.Label(master, text=self.desni_rezultat, font=("Comic Sans", 16)).grid(row=0, column=2, padx=20)
+        self.leva_vrednost = tkinter.Label(master, text=self.levi_rezultat, font=("Comic Sans", 16))
+        self.leva_vrednost.grid(row=0, column=0, padx=20)
+        self.desna_vrednost = tkinter.Label(master, text=self.desni_rezultat, font=("Comic Sans", 16))
+        self.desna_vrednost.grid(row=0, column=2, padx=20)
 
         # okvir za igralno polje:
         self.plosca = tkinter.Frame(master)
@@ -99,11 +101,9 @@ class Gui():
                 trenutna_vrstica.append(polje)
             self.matrika_polj.append(trenutna_vrstica)
 
-    def barva_klik(self, barva):
-        def pomozna():
-            #TODO
-            print(barva)
-        return pomozna
+    def barva_klik(self, indeks_barve):
+        self.logika.spremeni_matriko(indeks_barve)
+        return Gui.posodobi(self)
 
 #igralec, ki začne v zgornjem levem kotu
 IGRALEC_1 = "1"
@@ -127,6 +127,8 @@ class Logika():
         self.na_potezi = IGRALEC_1
         self.zgodovina = []
         self.rezultat = (0, 0)
+        self.polja_igralec1 = [(0, 0)]
+        self.polja_igralec2 = [(VELIKOST_IGRALNE_PLOSCE, VELIKOST_IGRALNE_PLOSCE)]
 
     # funkcija, ki ob začetku nove igre nariše novo igralno ploščo.
     # Ustvarimo matriko vrednosti self.matrika
@@ -168,26 +170,79 @@ class Logika():
         '''Vrne vmesni rezultat.'''
         return self.rezultat
 
-    def naredi_potezo(self, p):
+    def naredi_potezo(self, p, igralec):
         """Povleci potezo p, ne naredi nič, če je neveljavna.
            Vrne stanje_igre() po potezi ali None, ce je poteza neveljavna."""
         izbrana_barva = p
         if izbrana_barva not in self.veljavne_poteze():
             print("Izberi drugo barvo!")
         else:
+            self.spremeni_matriko(self, p)
+
+    def spremeni_matriko(self, p):
+        '''Vrne stanje igre po potezi.'''
+        igralec = self.na_potezi
+        if igralec == IGRALEC_1:
+            for (vrstica, stolpec) in self.polja_igralec1:
+                self.plosca[vrstica][stolpec] = p
+        else:
+            for (vrstica, stolpec) in self.polja_igralec2:
+                self.plosca[vrstica][stolpec] = p
+        self.skeniraj_matriko(p, igralec)
+
+    def skeniraj_matriko(self, p, igralec):
+        if igralec == IGRALEC_1:
+            polje = (0, 0)
+            a = self.preglej_sosednja_polja(polje, p)
+            self.polja_igralec1 = a
+        else:
+            polje = (VELIKOST_IGRALNE_PLOSCE, VELIKOST_IGRALNE_PLOSCE)
+            self.polja_igralec2 = self.preglej_sosednja_polja(polje, p)
+
+    def preglej_sosednja_polja(self, polje, p, skenirana_ujemajoca_polja=[]):
+        '''Pregleda sosednja polja, če so iste barve kot poteza. Če se barva ujema, polje dodajo k poljem igralca, ki je bil na potezi.'''
+        (i, j) = polje
+        polja = skenirana_ujemajoca_polja
+        if self.plosca[i][j] == p and polje not in polja:
+            polja.append((i, j))
+            if i == 0 and j == 0: #zgornji levi kot
+                polja + (self.preglej_sosednja_polja((i + 1, j), p, polja)) + (self.preglej_sosednja_polja((i, j + 1), p, polja)) # dol in desno
+            elif i == 0 and j == VELIKOST_IGRALNE_PLOSCE - 1: #zgornji desni kot
+                polja + (self.preglej_sosednja_polja((i + 1, j), p, polja)) #dol
+                polja + (self.preglej_sosednja_polja((i, j - 1), p, polja)) #levo
+            elif i == VELIKOST_IGRALNE_PLOSCE - 1 and j == 0: #spodnji levi kot
+                polja + (self.preglej_sosednja_polja((i - 1, j), p, polja)) #gor
+                polja + (self.preglej_sosednja_polja((i, j + 1), p, polja)) #desno
+            elif i == VELIKOST_IGRALNE_PLOSCE - 1 and j == VELIKOST_IGRALNE_PLOSCE - 1: #spodnji desni kot
+                polja + (self.preglej_sosednja_polja((i - 1, j), p, polja)) #gor
+                polja + (self.preglej_sosednja_polja((i, j - 1), p, polja)) #levo
+            elif i == 0 and j != 0 and j != VELIKOST_IGRALNE_PLOSCE - 1: #prva (zgornja) vrstica
+                polja + (self.preglej_sosednja_polja((i + 1, j), p, polja)) + (self.preglej_sosednja_polja((i, j - 1), p, polja)) + (self.preglej_sosednja_polja((i, j + 1), p, polja)) #desno
+            #dol, levo, desno
+            elif i == VELIKOST_IGRALNE_PLOSCE - 1 and j != 0 and j != VELIKOST_IGRALNE_PLOSCE - 1: #zadnja (spodnja) vrstica
+                polja + (self.preglej_sosednja_polja((i - 1, j), p, polja)) #gor
+                polja + (self.preglej_sosednja_polja((i, j - 1), p, polja)) #levo
+                polja + (self.preglej_sosednja_polja((i, j + 1), p, polja)) #desno
+            elif j == 0 and i != 0 and i != VELIKOST_IGRALNE_PLOSCE - 1: #prvi (najbolj levi) stolpec
+                polja + (self.preglej_sosednja_polja((i - 1, j), p, polja)) #gor
+                polja + (self.preglej_sosednja_polja((i + 1, j), p, polja)) #dol
+                polja + (self.preglej_sosednja_polja((i, j + 1), p, polja)) #desno
+            elif j == VELIKOST_IGRALNE_PLOSCE - 1 and i != 0 and i != VELIKOST_IGRALNE_PLOSCE - 1: #zadnji (najbolj desni) stolpec
+                polja + (self.preglej_sosednja_polja((i - 1, j), p, polja)) #gor
+                polja + (self.preglej_sosednja_polja((i + 1, j), p, polja)) #dol
+                polja + (self.preglej_sosednja_polja((i, j - 1), p, polja)) #levo
+            else:
+                polja + (self.preglej_sosednja_polja((i - 1, j), p, polja)) #gor
+                polja + (self.preglej_sosednja_polja((i + 1, j), p, polja)) #dol
+                polja + (self.preglej_sosednja_polja((i, j - 1), p, polja)) #levo
+                polja + (self.preglej_sosednja_polja((i, j + 1), p, polja)) #desno
+        else:
             pass
-            #
-            #
-            # self.shrani_pozicijo()
-            # self.plosca[i][j] = self.na_potezi
-            # (zmagovalec, trojka) = self.stanje_igre()
-            # if zmagovalec == NI_KONEC:
-            #     # Igre ni konec, zdaj je na potezi nasprotnik
-            #     self.na_potezi = nasprotnik(self.na_potezi)
-            # else:
-            #     # Igre je konec
-            #     self.na_potezi = None
-            # return (zmagovalec, trojka)
+        return polja
+
+
+
+
 
 
 root = tkinter.Tk()
