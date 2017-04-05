@@ -144,6 +144,8 @@ class Logika():
                 vrednost = random.randint(0, 5)
                 vrstica_matrike.append(vrednost)
             self.plosca.append(vrstica_matrike)
+        self.skeniraj_matriko(self.plosca[0][0], IGRALEC_1)
+        self.skeniraj_matriko(self.plosca[VELIKOST_IGRALNE_PLOSCE - 1][VELIKOST_IGRALNE_PLOSCE - 1], IGRALEC_2)
 
     def get_polje(self):
         '''Vrne matriko polja.'''
@@ -193,54 +195,30 @@ class Logika():
     def skeniraj_matriko(self, p, igralec):
         if igralec == IGRALEC_1:
             polje = (0, 0)
-            a = self.preglej_sosednja_polja(polje, p)
+            a = self.preglej_sosednja_polja(polje, p, [])
             self.polja_igralec1 = a
         else:
-            polje = (VELIKOST_IGRALNE_PLOSCE, VELIKOST_IGRALNE_PLOSCE)
-            self.polja_igralec2 = self.preglej_sosednja_polja(polje, p)
+            polje = (VELIKOST_IGRALNE_PLOSCE - 1, VELIKOST_IGRALNE_PLOSCE - 1)
+            self.polja_igralec2 = self.preglej_sosednja_polja(polje, p, [])
 
-    def preglej_sosednja_polja(self, polje, p, skenirana_ujemajoca_polja=[]):
+    def preglej_sosednja_polja(self, polje, p, polja):
         '''Pregleda sosednja polja, če so iste barve kot poteza. Če se barva ujema, polje dodajo k poljem igralca, ki je bil na potezi.'''
         (i, j) = polje
-        polja = skenirana_ujemajoca_polja
         if self.plosca[i][j] == p and polje not in polja:
-            polja.append((i, j))
-            if i == 0 and j == 0: #zgornji levi kot
-                polja + (self.preglej_sosednja_polja((i + 1, j), p, polja)) + (self.preglej_sosednja_polja((i, j + 1), p, polja)) # dol in desno
-            elif i == 0 and j == VELIKOST_IGRALNE_PLOSCE - 1: #zgornji desni kot
-                polja + (self.preglej_sosednja_polja((i + 1, j), p, polja)) #dol
-                polja + (self.preglej_sosednja_polja((i, j - 1), p, polja)) #levo
-            elif i == VELIKOST_IGRALNE_PLOSCE - 1 and j == 0: #spodnji levi kot
-                polja + (self.preglej_sosednja_polja((i - 1, j), p, polja)) #gor
-                polja + (self.preglej_sosednja_polja((i, j + 1), p, polja)) #desno
-            elif i == VELIKOST_IGRALNE_PLOSCE - 1 and j == VELIKOST_IGRALNE_PLOSCE - 1: #spodnji desni kot
-                polja + (self.preglej_sosednja_polja((i - 1, j), p, polja)) #gor
-                polja + (self.preglej_sosednja_polja((i, j - 1), p, polja)) #levo
-            elif i == 0 and j != 0 and j != VELIKOST_IGRALNE_PLOSCE - 1: #prva (zgornja) vrstica
-                polja + (self.preglej_sosednja_polja((i + 1, j), p, polja)) + (self.preglej_sosednja_polja((i, j - 1), p, polja)) + (self.preglej_sosednja_polja((i, j + 1), p, polja)) #desno
-            #dol, levo, desno
-            elif i == VELIKOST_IGRALNE_PLOSCE - 1 and j != 0 and j != VELIKOST_IGRALNE_PLOSCE - 1: #zadnja (spodnja) vrstica
-                polja + (self.preglej_sosednja_polja((i - 1, j), p, polja)) #gor
-                polja + (self.preglej_sosednja_polja((i, j - 1), p, polja)) #levo
-                polja + (self.preglej_sosednja_polja((i, j + 1), p, polja)) #desno
-            elif j == 0 and i != 0 and i != VELIKOST_IGRALNE_PLOSCE - 1: #prvi (najbolj levi) stolpec
-                polja + (self.preglej_sosednja_polja((i - 1, j), p, polja)) #gor
-                polja + (self.preglej_sosednja_polja((i + 1, j), p, polja)) #dol
-                polja + (self.preglej_sosednja_polja((i, j + 1), p, polja)) #desno
-            elif j == VELIKOST_IGRALNE_PLOSCE - 1 and i != 0 and i != VELIKOST_IGRALNE_PLOSCE - 1: #zadnji (najbolj desni) stolpec
-                polja + (self.preglej_sosednja_polja((i - 1, j), p, polja)) #gor
-                polja + (self.preglej_sosednja_polja((i + 1, j), p, polja)) #dol
-                polja + (self.preglej_sosednja_polja((i, j - 1), p, polja)) #levo
-            else:
-                polja + (self.preglej_sosednja_polja((i - 1, j), p, polja)) #gor
-                polja + (self.preglej_sosednja_polja((i + 1, j), p, polja)) #dol
-                polja + (self.preglej_sosednja_polja((i, j - 1), p, polja)) #levo
-                polja + (self.preglej_sosednja_polja((i, j + 1), p, polja)) #desno
-        else:
-            pass
+            polja.append(polje)
+            #desno
+            if j < VELIKOST_IGRALNE_PLOSCE - 1:
+                self.preglej_sosednja_polja((i, j + 1), p, polja)
+            #dol
+            if i < VELIKOST_IGRALNE_PLOSCE - 1:
+                self.preglej_sosednja_polja((i + 1, j), p, polja)
+            #levo
+            if j > 0:
+                self.preglej_sosednja_polja((i, j - 1), p, polja)
+            #gor
+            if i > 0:
+                self.preglej_sosednja_polja((i - 1, j), p, polja)
         return polja
-
-
 
 
 
