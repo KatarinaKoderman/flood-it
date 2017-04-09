@@ -7,25 +7,25 @@ NEODLOCENO = "neodločeno"
 NI_KONEC = "ni konec"
 # VELIKOST_IGRALNE_PLOŠČE lahko spreminjamo v Gui-ju.
 
+
+def nasprotnik(igralec):
+    """Vrni nasprotnika igralca."""
+    if igralec == IGRALEC_1:
+        return IGRALEC_2
+    elif igralec == IGRALEC_2:
+        return IGRALEC_1
+    else:
+        assert False, "neveljaven nasprotnik"
+
 class Logika():
     def __init__(self, VELIKOST_IGRALNE_PLOSCE):
         self.plosca = None
         self.na_potezi = IGRALEC_1
         self.zgodovina = []
         self.rezultat = (0, 0)
-        self.polja_igralec1 = [(0, 0)]
         self.VELIKOST_IGRALNE_PLOSCE = VELIKOST_IGRALNE_PLOSCE
+        self.polja_igralec1 = [(0, 0)]
         self.polja_igralec2 = [(self.VELIKOST_IGRALNE_PLOSCE - 1, self.VELIKOST_IGRALNE_PLOSCE - 1)]
-
-
-    def nasprotnik(self, igralec):
-        """Vrni nasprotnika od igralca."""
-        if igralec == IGRALEC_1:
-            return IGRALEC_2
-        elif igralec == IGRALEC_2:
-            return IGRALEC_1
-        else:
-            assert False, "neveljaven nasprotnik"
 
     # funkcija, ki ob začetku nove igre nariše novo igralno ploščo.
     # Ustvarimo matriko vrednosti self.matrika
@@ -62,7 +62,7 @@ class Logika():
 
     def razveljavi(self):
         """Razveljavi potezo in se vrni v prejšnje stanje."""
-        if len (self.zgodovina) < 1: #ko pridemo do začetnega stanja, funkcija razveljavi ne dela ničesar
+        if len(self.zgodovina) < 1: #ko pridemo do začetnega stanja, funkcija razveljavi ne dela ničesar
             return (self.plosca, self.na_potezi)
         (self.plosca, self.na_potezi, self.polja_igralec1, self.polja_igralec2) = self.zgodovina.pop()#nastavimo vrednosti iz zgodovine
         self.izracunaj_rezultat()
@@ -96,7 +96,7 @@ class Logika():
             self.izracunaj_rezultat()
             if self.stanje_igre() == NI_KONEC:
                 #Igre ni konec, na potezi je nasprotnik.
-                self.na_potezi = self.nasprotnik(igralec)
+                self.na_potezi = nasprotnik(igralec)
             else:
                 self.na_potezi = None
 
