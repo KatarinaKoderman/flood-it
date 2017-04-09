@@ -1,5 +1,13 @@
-import tkinter
+import tkinter    # za uporabniški vmesnik
+import argparse   # za argumente iz ukazne vrstice
+import logging    # za odpravljanje napak
+
+# Privzeta minimax globina
+MINIMAX_GLOBINA = 3
+
 import logika
+import clovek
+import racunalnik
 
 # TODO velikost polja se mora spremeniti, če se spremeni velikost okna
 
@@ -34,7 +42,7 @@ class Gui():
 
         # ustvarimo okvir, v katerem bodo gumbi
         gumbi = tkinter.Frame(master)
-        gumbi.grid(row=2, column=1)
+        gumbi.grid(row=3, column=1)
         # nariše gumbe
         for i in range(len(Gui.SEZNAM_BARV)):
             tkinter.Button(gumbi, width=5 * Gui.VELIKOST_POLJA, height=2 * Gui.VELIKOST_POLJA,
@@ -42,13 +50,20 @@ class Gui():
 
         # levo in desno postavimo label-a z vmesnim rezultatom
         self.leva_vrednost = tkinter.Label(master, text=self.levi_rezultat, font=("Comic Sans", 16), width=3)
-        self.leva_vrednost.grid(row=1, column=0, padx=20)
+        self.leva_vrednost.grid(row=1, column=0, padx=20, sticky="N")
         self.desna_vrednost = tkinter.Label(master, text=self.desni_rezultat, font=("Comic Sans", 16), width=3)
-        self.desna_vrednost.grid(row=1, column=2, padx=20)
+        self.desna_vrednost.grid(row=2, column=2, padx=20, sticky="N")
+
+        # TODO dokončaj oblikovanje, uporabi vnos v prikazu veznega teksta (tj. kdo je na potezi, zmagovalec)
+        #nad vmesnim rezultatom ustvarimo polje za vnos imena igralca
+        self.igralec1 = tkinter.Entry(master)
+        self.igralec1.grid(row=2, column=0, padx=20, sticky="S")
+        self.igralec2 = tkinter.Label(master, text="igralec2")
+        self.igralec2.grid(row=1, column=2, padx=20, sticky="S")
 
         # okvir za igralno polje:
         self.plosca = tkinter.Frame(master)
-        self.plosca.grid(row=1, column=1)
+        self.plosca.grid(row=1, column=1, rowspan=2)
 
         # nariše igralno polje
         self.narisi_polje()
@@ -77,9 +92,9 @@ class Gui():
         self.desna_vrednost.config(text=self.desni_rezultat)
         #prilagodimo izpis v opozorilni vrstici:
         if self.logika.stanje_igre() == NI_KONEC:
-            self.opozorila.config(text="Na potezi je igralec {}".format(self.logika.na_potezi))
+            self.opozorila.config(text="Na potezi je igralec {}.".format(self.logika.na_potezi))
         elif self.logika.stanje_igre() == NEODLOCENO:
-            self.opozorila.config(text="Konec igre. Igra je neodločena.")
+            self.opozorila.config(text="Konec igre. Rezultat je neodločen.")
         else:
             self.opozorila.config(text="Konec igre. Zmagal je igralec {}.".format(self.logika.stanje_igre()))
 
@@ -91,7 +106,7 @@ class Gui():
     def narisi_polje(self):
         vrstice = VELIKOST_IGRALNE_PLOSCE
         stolpci = VELIKOST_IGRALNE_PLOSCE
-        self.opozorila.config(text="Na potezi je igralec 1")
+        self.opozorila.config(text="Na potezi je igralec 1.")
         self.logika.narisi_polje()
         self.matrika_polj = [] #matrika kvadratov
         self.matrika = self.logika.get_polje()
@@ -102,7 +117,9 @@ class Gui():
             vrstica_matrike = self.matrika[vrstica]  # vrstica matrike matrika
             for stolpec in range(stolpci):
                 vrednost = vrstica_matrike[stolpec]
-                polje = tkinter.Label(self.plosca, borderwidth=Gui.VELIKOST_POLJA, width=2 * Gui.VELIKOST_POLJA,
+                polje = tkinter.Label(self.plosca, borderwidth=Gui.VELIKOST_POLJA,
+                                      height=2 * Gui.VELIKOST_POLJA,
+                                      width=4 * Gui.VELIKOST_POLJA,
                                       bg=Gui.SEZNAM_BARV[vrednost])
                 polje.grid(row=vrstica, column=stolpec, padx=0.5, pady=0.5)
                 trenutna_vrstica.append(polje)
@@ -120,19 +137,63 @@ class Gui():
                 print('Zmagal je {}.'.format(self.logika.stanje_igre()))
             return self.posodobi()
 
+# TODO razred igra (ni ločeno, nekaj je v gui, nekaj v logiki! -> popravi naprej)
     def razveljavi_eno_potezo(self): #uporabno pri igri proti človeku
         (pozicija, na_potezi) = self.logika.razveljavi() #iz zgodovine dobimo zadnjo pozicijo in kdo je bil takrat na potezi
         self.matrika = pozicija
         (self.levi_rezultat, self.desni_rezultat) = self.logika.get_rezultat() #ponovno nastavimo levi in desni rezultat
         self.posodobi()
 
-
     def razveljavi_dve_potezi(self): #uporabno pri igri proti računalniku
         self.razveljavi_eno_potezo()
         self.razveljavi_eno_potezo()
 
+######################################################################
+## Glavni program
 
-root = tkinter.Tk()
-root.title("Color Flood")
-aplikacija = Gui(root)
-root.mainloop()
+# Glavnemu oknu rečemo "root" (koren), ker so grafični elementi
+# organizirani v drevo, glavno okno pa je koren tega drevesa
+
+# Ta pogojni stavek preveri, ali smo datoteko pognali kot glavni program in v tem primeru
+# izvede kodo. (Načeloma bi lahko datoteko naložili z "import" iz kakšne druge in v tem
+# primeru ne bi želeli pognati glavne kode. To je standardni idiom v Pythonu.)
+
+if __name__ == "__main__":
+    # Iz ukazne vrstice poberemo globino za minimax, uporabimo
+    # modul argparse, glej https://docs.python.org/3.4/library/argparse.html
+
+    # Opišemo argumente, ki jih sprejmemo iz ukazne vrstice
+    parser = argparse.ArgumentParser(description="Igrica color flood")
+    # Argument --globina n, s privzeto vrednostjo MINIMAX_GLOBINA
+    parser.add_argument('--globina',
+                        default=MINIMAX_GLOBINA,
+                        type=int,
+                        help='globina iskanja za minimax algoritem')
+    # Argument --debug, ki vklopi sporočila o tem, kaj se dogaja
+    parser.add_argument('--debug',
+                        action='store_true',
+                        help='vklopi sporočila o dogajanju')
+
+    # Obdelamo argumente iz ukazne vrstice
+    args = parser.parse_args()
+
+    # Vklopimo sporočila, če je uporabnik podal --debug
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+
+    # Naredimo glavno okno in nastavimo ime
+    root = tkinter.Tk()
+    root.title("Color Flood")
+
+    # Naredimo objekt razreda Gui in ga spravimo v spremenljivko,
+    # sicer bo Python mislil, da je objekt neuporabljen in ga bo pobrisal
+    # iz pomnilnika.
+    print(args)
+    globina = args.globina
+    print(globina)
+    # TODO globina
+    aplikacija = Gui(root)
+
+    # Kontrolo prepustimo glavnemu oknu. Funkcija mainloop neha
+    # delovati, ko okno zapremo.
+    root.mainloop()
