@@ -23,6 +23,7 @@ class Minimax:
         self.igra = None  # objekt, ki opisuje igro (ga dobimo kasneje)
         self.jaz = None  # katerega igralca igramo (podatek dobimo kasneje)
         self.poteza = None  # sem napišemo potezo, ko jo najdemo
+        self.logika = logika.Logika()
 
     def prekini(self):
         """Metoda, ki jo pokliče GUI, če je treba nehati razmišljati, ker
@@ -72,7 +73,7 @@ class Minimax:
             # Igre je konec, vrnemo njeno vrednost
             if zmagovalec == self.jaz:
                 return (None, Minimax.ZMAGA)
-            elif zmagovalec == nasprotnik(self.jaz):
+            elif zmagovalec == self.logika.nasprotnik(self.jaz):
                 return (None, -Minimax.ZMAGA)
             else:
                 return (None, 0)

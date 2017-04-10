@@ -7,7 +7,7 @@ MINIMAX_GLOBINA = 3
 
 import logika
 import clovek
-import racunalnik
+# import racunalnik
 
 # TODO velikost polja se mora spremeniti, če se spremeni velikost okna
 
@@ -56,17 +56,17 @@ class Gui():
 
         # TODO dokončaj oblikovanje, uporabi vnos v prikazu veznega teksta (tj. kdo je na potezi, zmagovalec)
         #nad vmesnim rezultatom ustvarimo polje za vnos imena igralca
-        self.igralec1 = tkinter.Entry(master)
-        self.igralec1.grid(row=2, column=0, padx=20, sticky="S")
-        self.igralec2 = tkinter.Label(master, text="igralec2")
-        self.igralec2.grid(row=1, column=2, padx=20, sticky="S")
+        # self.igralec1 = tkinter.Entry(master)
+        # self.igralec1.grid(row=2, column=0, padx=20, sticky="S")
+        # self.igralec2 = tkinter.Label(master, text="igralec2")
+        # self.igralec2.grid(row=1, column=2, padx=20, sticky="S")
 
         # okvir za igralno polje:
         self.plosca = tkinter.Frame(master)
         self.plosca.grid(row=1, column=1, rowspan=2)
 
         # nariše igralno polje
-        self.narisi_polje()
+        self.narisi_polje(clovek.Clovek(self), clovek.Clovek(self))
 
         # naredimo glavni menu:
         menu = tkinter.Menu(master)
@@ -74,8 +74,8 @@ class Gui():
         # in podmenu z izbiro vrste igre
         menu_igra = tkinter.Menu(menu, tearoff=0)
         menu.add_cascade(label="Nova igra", menu=menu_igra)
-        menu_igra.add_command(label="Proti računalniku", command=lambda: self.narisi_polje())#zaenkrat samo narišeta novo polje
-        menu_igra.add_command(label="Proti človeku", command=lambda: self.narisi_polje())
+        # menu_igra.add_command(label="Proti računalniku", command=lambda: self.narisi_polje(clovek.Clovek(self), racunalnik.Racunalnik(self)))#zaenkrat samo narišeta novo polje
+        menu_igra.add_command(label="Proti človeku", command=lambda: self.narisi_polje(clovek.Clovek(self), clovek.Clovek(self)))
         # naredimo menu z gumbom razveljavi
         moznosti = tkinter.Menu(menu, tearoff=0)
         menu.add_cascade(label="Možnosti", menu=moznosti)
@@ -103,13 +103,15 @@ class Gui():
     # Ustvarimo dve matriki:
         # self.matrika je matrika vrednosti [0,5],
         # matrika_polj pa je matrika objektov (labelov):
-    def narisi_polje(self):
+    def narisi_polje(self, igralec1, igralec2):
         vrstice = VELIKOST_IGRALNE_PLOSCE
         stolpci = VELIKOST_IGRALNE_PLOSCE
         self.opozorila.config(text="Na potezi je igralec 1.")
-        self.logika.narisi_polje()
+        self.logika.narisi_polje(igralec1, igralec2)
         self.matrika_polj = [] #matrika kvadratov
         self.matrika = self.logika.get_polje()
+        self.igralec1 = igralec1
+        self.igralec2 = igralec2
         self.leva_vrednost.config(text=self.logika.levi_rezultat)
         self.desna_vrednost.config(text=self.logika.desni_rezultat)
         for vrstica in range(vrstice):
