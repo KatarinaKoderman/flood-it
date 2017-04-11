@@ -108,7 +108,7 @@ class Logika():
     def spremeni_matriko(self, p):
         '''Vrne stanje igre po potezi.'''
         igralec = self.na_potezi
-        if igralec == IGRALEC_1:
+        if igralec == self.igralec1:
             for (vrstica, stolpec) in self.polja_igralec1:
                 self.plosca[vrstica][stolpec] = p
         else:
@@ -118,7 +118,7 @@ class Logika():
 
     def skeniraj_matriko(self, p, igralec):
         '''Pregleda matriko in jo glede na potezo in igralca spremeni.'''
-        if igralec == IGRALEC_1:
+        if igralec == self.igralec1:
             polje = (0, 0)
             self.polja_igralec1 = self.preglej_sosednja_polja(polje, p, [])
         else:
