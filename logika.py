@@ -73,6 +73,14 @@ class Logika():
         self.izracunaj_rezultat()
         return (self.plosca, self.na_potezi)
 
+    def kopija(self):
+        k = Logika(self.VELIKOST_IGRALNE_PLOSCE)
+        k.plosca = [self.plosca[i][:] for i in range(self.VELIKOST_IGRALNE_PLOSCE)]
+        k.na_potezi = self.na_potezi
+        k.igralec1 = self.igralec1
+        k.igralec2 = self.igralec2
+        return k
+
     def veljavne_poteze(self):
         """Vrni seznam veljavnih potez."""
         barva_1 = self.plosca[0][0]
@@ -90,9 +98,11 @@ class Logika():
     def izracunaj_rezultat(self):
         self.rezultat = (len(self.polja_igralec1), len(self.polja_igralec2))
 
-    def naredi_potezo(self, izbrana_barva, igralec):
+    def naredi_potezo(self, izbrana_barva):
         '''Povleci potezo p, ne naredi nič, če je neveljavna.
            Vrne stanje_igre() po potezi ali None, ce je poteza neveljavna.'''
+        igralec = self.na_potezi
+        # igralec.igraj()
         if izbrana_barva not in self.veljavne_poteze():
             print("Izberi drugo barvo!")
         else:
@@ -102,8 +112,10 @@ class Logika():
             if self.stanje_igre() == NI_KONEC:
                 #Igre ni konec, na potezi je nasprotnik.
                 self.na_potezi = self.nasprotnik(igralec)
+#                self.na_potezi.igraj()
             else:
                 self.na_potezi = None
+
 
     def spremeni_matriko(self, p):
         '''Vrne stanje igre po potezi.'''
@@ -160,5 +172,3 @@ class Logika():
             else:
                 return NEODLOCENO
         return NI_KONEC
-
-

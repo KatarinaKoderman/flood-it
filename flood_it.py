@@ -8,6 +8,8 @@ MINIMAX_GLOBINA = 3
 import logika
 import clovek
 import racunalnik
+import minimax
+
 
 # TODO velikost polja se mora spremeniti, če se spremeni velikost okna
 
@@ -28,7 +30,7 @@ class Gui():
     desni_rezultat = 0
     matrika = []
 
-    def __init__(self, master):
+    def __init__(self, master, globina):
         #ustvarimo objekt
         self.logika = logika.Logika(VELIKOST_IGRALNE_PLOSCE)
 
@@ -53,14 +55,12 @@ class Gui():
         levi_okvir.grid(row=1, column=0, padx=20, sticky="N")
         self.leva_vrednost = tkinter.Label(levi_okvir, text=self.levi_rezultat, font=("Comic Sans", 16), width=3)
         self.leva_vrednost.pack(side=tkinter.TOP)
-        "Potrebno popraviti!"
-        self.levo_ime = tkinter.Entry(levi_okvir).pack(side=tkinter.BOTTOM)
+        #TODO
         desni_okvir = tkinter.Frame(master) #okvir v katerem bosta desno ime in desni rezultat
         desni_okvir.grid(row=2, column=2, padx=20, sticky="N")
         self.desna_vrednost = tkinter.Label(desni_okvir, text=self.desni_rezultat, font=("Comic Sans", 16), width=3)
         self.desna_vrednost.pack(side=tkinter.BOTTOM)
-        "Potrebno popraviti!"
-        self.desno_ime = tkinter.Entry(desni_okvir).pack(side=tkinter.TOP)
+        #TODO
 
         # TODO dokončaj oblikovanje, uporabi vnos v prikazu veznega teksta (tj. kdo je na potezi, zmagovalec)
         #nad vmesnim rezultatom ustvarimo polje za vnos imena igralca
@@ -82,7 +82,8 @@ class Gui():
         # in podmenu z izbiro vrste igre
         menu_igra = tkinter.Menu(menu, tearoff=0)
         menu.add_cascade(label="Nova igra", menu=menu_igra)
-        menu_igra.add_command(label="Proti računalniku", command=lambda: self.narisi_polje(clovek.Clovek(self), racunalnik.Racunalnik(self, MINIMAX_GLOBINA)))
+        menu_igra.add_command(label="Proti računalniku", command=lambda: self.narisi_polje(clovek.Clovek(self),
+                                                                                           racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
         menu_igra.add_command(label="Proti človeku", command=lambda: self.narisi_polje(clovek.Clovek(self), clovek.Clovek(self)))
         # naredimo menu z gumbom razveljavi
         moznosti = tkinter.Menu(menu, tearoff=0)
@@ -139,22 +140,46 @@ class Gui():
                 polje.grid(row=vrstica, column=stolpec, padx=0.5, pady=0.5)
                 trenutna_vrstica.append(polje)
             self.matrika_polj.append(trenutna_vrstica)
+        self.igralec1.igraj()
 
 
     def barva_klik(self, indeks_barve):
         if indeks_barve not in self.logika.veljavne_poteze():
             self.opozorila.config(text="Izberi drugo barvo!")
         else:
-            igralec = self.logika.na_potezi
-            self.logika.naredi_potezo(indeks_barve, igralec)
+            trenutni_igralec = self.logika.na_potezi
+            trenutni_igralec.klik(indeks_barve)
             self.levi_rezultat, self.desni_rezultat = self.logika.get_rezultat()
             if self.logika.stanje_igre() == IGRALEC_1:
                 print('Zmagal je igralec 1.')
             if self.logika.stanje_igre() == IGRALEC_2:
                 print('Zmagal je igralec 2.')
-            return self.posodobi()
+         #   return self.posodobi()
+        # TODO Bauer nima metode posodobi v barva_klik
 
-# TODO razred igra (ni ločeno, nekaj je v gui, nekaj v logiki! -> popravi naprej)
+
+    def naredi_potezo(self, p):
+        "Naredi potezo, če je ta veljavna."
+        igralec = self.logika.na_potezi
+        self.logika.naredi_potezo(p)
+        if igralec is None:
+            # Poteza ni bila veljavna, nič se ni spremenilo
+            pass
+        else:
+            # Poteza je bila veljavna, narišemo jo na zaslon
+            # Ugotovimo, kako nadaljevati
+            if self.logika.stanje_igre() == NI_KONEC:
+                # Igra se nadaljuje
+                igralec.igraj()
+                self.levi_rezultat, self.desni_rezultat = self.logika.get_rezultat()
+                self.posodobi()
+            else:
+                # Igre je konec, končaj.
+                print("Konec igre. TODO.")
+                # TODO Končaj igro.
+
+
+############################################################################################
     def razveljavi_eno_potezo(self): #uporabno pri igri proti človeku
         (pozicija, na_potezi) = self.logika.razveljavi() #iz zgodovine dobimo zadnjo pozicijo in kdo je bil takrat na potezi
         self.matrika = pozicija
@@ -209,7 +234,7 @@ if __name__ == "__main__":
     globina = args.globina
     print(globina)
     # TODO globina
-    aplikacija = Gui(root)
+    aplikacija = Gui(root, globina)
 
     # Kontrolo prepustimo glavnemu oknu. Funkcija mainloop neha
     # delovati, ko okno zapremo.
