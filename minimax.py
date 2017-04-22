@@ -19,6 +19,7 @@ class Minimax:
     # v drugem vlaknu kot tkinter).
 
     def __init__(self, globina, velikost):
+        self.globina_racunanja = globina
         self.globina = globina  # do katere globine iščemo?
         self.prekinitev = False  # ali moramo končati?
         self.jaz = None  # katerega igralca igramo (podatek dobimo kasneje)
@@ -40,7 +41,7 @@ class Minimax:
         self.poteza = None  # Sem napišemo potezo, ko jo najdemo
 
         # Poženemo minimax
-        (poteza, vrednost) = self.minimax(self.globina, True)
+        (poteza, vrednost) = self.minimax(self.globina_racunanja, True)
         self.jaz = None
         self.logika = None
         if not self.prekinitev:
@@ -59,9 +60,8 @@ class Minimax:
         # če imamo v trojki x znakov igralca in y znakov nasprotnika (in 3-x-y praznih polj),
         # potem je taka trojka za self.jaz vredna v.
         # Trojke, ki se ne pojavljajo v slovarju, so vredne 0.
-
         (prvi_igralec, drugi_igralec) = self.logika.rezultat
-        return prvi_igralec - drugi_igralec
+        return drugi_igralec - prvi_igralec
 
     def minimax(self, globina, maksimiziramo):
         """Glavna metoda minimax."""
@@ -85,23 +85,25 @@ class Minimax:
             else:
                 # Naredimo eno stopnjo minimax
                 if maksimiziramo:
+                    print("maksimiziramo")
                     # Maksimiziramo
                     najboljsa_poteza = None
                     vrednost_najboljse = -Minimax.NESKONCNO
                     for p in self.logika.veljavne_poteze():
                         self.logika.naredi_potezo(p)
-                        vrednost = self.minimax(globina-1, not maksimiziramo)[1]
+                        vrednost = self.minimax(globina-1, False)[1]
                         self.logika.razveljavi()
                         if vrednost > vrednost_najboljse:
                             vrednost_najboljse = vrednost
                             najboljsa_poteza = p
                 else:
                     # Minimiziramo
+                    print("minimiziramo")
                     najboljsa_poteza = None
                     vrednost_najboljse = Minimax.NESKONCNO
                     for p in self.logika.veljavne_poteze():
                         self.logika.naredi_potezo(p)
-                        vrednost = self.minimax(globina-1, not maksimiziramo)[1]
+                        vrednost = self.minimax(globina-1, True)[1]
                         self.logika.razveljavi()
                         if vrednost < vrednost_najboljse:
                             vrednost_najboljse = vrednost

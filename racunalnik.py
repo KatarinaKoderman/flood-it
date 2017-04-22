@@ -11,7 +11,6 @@ class Racunalnik():
         """Igraj potezo, ki jo vrne algoritem."""
 
         # Naredimo vlakno, ki mu podamo kopijo igre (da ne zmede gui-ja):
-        print("Racunalnik igraj.")
         self.mislec = threading.Thread(
             target=lambda: self.algoritem.izracunaj_potezo(self.gui.logika.kopija()))
 

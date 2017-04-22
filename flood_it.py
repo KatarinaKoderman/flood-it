@@ -160,8 +160,8 @@ class Gui():
 
     def naredi_potezo(self, p):
         "Naredi potezo, če je ta veljavna."
-        igralec = self.logika.na_potezi
         self.logika.naredi_potezo(p)
+        igralec = self.logika.na_potezi
         if igralec is None:
             # Poteza ni bila veljavna, nič se ni spremenilo
             pass
