@@ -12,7 +12,7 @@ class Racunalnik():
 
         # Naredimo vlakno, ki mu podamo kopijo igre (da ne zmede gui-ja):
         self.mislec = threading.Thread(
-            target=lambda: self.algoritem.izracunaj_potezo(self.gui.igra.kopija()))
+            target=lambda: self.algoritem.izracunaj_potezo(self.gui.logika.kopija()))
 
         # Poženemo vlakno:
         self.mislec.start()
@@ -24,7 +24,7 @@ class Racunalnik():
         """Vsakih 100ms preveri, ali je algoritem že izračunal potezo."""
         if self.algoritem.poteza is not None:
             # Algoritem je našel potezo, povleci jo, če ni bilo prekinitve
-            self.gui.povleci_potezo(self.algoritem.poteza)
+            self.gui.naredi_potezo(self.algoritem.poteza)
             # Vzporedno vlakno ni več aktivno, zato ga ne rabimo več
             self.mislec = None
         else:
@@ -44,4 +44,3 @@ class Racunalnik():
     def klik(self, p):
         # Računalnik ignorira klike uporabnika
         pass
-

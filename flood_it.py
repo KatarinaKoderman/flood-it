@@ -8,6 +8,8 @@ MINIMAX_GLOBINA = 3
 import logika
 import clovek
 import racunalnik
+import minimax
+
 
 # TODO velikost polja se mora spremeniti, če se spremeni velikost okna
 
@@ -28,7 +30,7 @@ class Gui():
     desni_rezultat = 0
     matrika = []
 
-    def __init__(self, master):
+    def __init__(self, master, globina):
         #ustvarimo objekt
         self.logika = logika.Logika(VELIKOST_IGRALNE_PLOSCE)
 
@@ -49,24 +51,30 @@ class Gui():
                            background=Gui.SEZNAM_BARV[i], command=lambda i=i: self.barva_klik(i)).pack(side=tkinter.LEFT, padx=10, pady=5)
 
         # levo in desno postavimo label-a z vmesnim rezultatom
-        self.leva_vrednost = tkinter.Label(master, text=self.levi_rezultat, font=("Comic Sans", 16), width=3)
-        self.leva_vrednost.grid(row=1, column=0, padx=20, sticky="N")
-        self.desna_vrednost = tkinter.Label(master, text=self.desni_rezultat, font=("Comic Sans", 16), width=3)
-        self.desna_vrednost.grid(row=2, column=2, padx=20, sticky="N")
+        levi_okvir = tkinter.Frame(master)#okvir v katem bosta levo ime in levi rezultat
+        levi_okvir.grid(row=1, column=0, padx=20, sticky="N")
+        self.leva_vrednost = tkinter.Label(levi_okvir, text=self.levi_rezultat, font=("Comic Sans", 16), width=3)
+        self.leva_vrednost.pack(side=tkinter.TOP)
+        #TODO
+        desni_okvir = tkinter.Frame(master) #okvir v katerem bosta desno ime in desni rezultat
+        desni_okvir.grid(row=2, column=2, padx=20, sticky="N")
+        self.desna_vrednost = tkinter.Label(desni_okvir, text=self.desni_rezultat, font=("Comic Sans", 16), width=3)
+        self.desna_vrednost.pack(side=tkinter.BOTTOM)
+        #TODO
 
         # TODO dokončaj oblikovanje, uporabi vnos v prikazu veznega teksta (tj. kdo je na potezi, zmagovalec)
         #nad vmesnim rezultatom ustvarimo polje za vnos imena igralca
-        self.igralec1 = tkinter.Entry(master)
-        self.igralec1.grid(row=2, column=0, padx=20, sticky="S")
-        self.igralec2 = tkinter.Label(master, text="igralec2")
-        self.igralec2.grid(row=1, column=2, padx=20, sticky="S")
+        # self.igralec1 = tkinter.Entry(master)
+        # self.igralec1.grid(row=2, column=0, padx=20, sticky="S")
+        # self.igralec2 = tkinter.Label(master, text="igralec2")
+        # self.igralec2.grid(row=1, column=2, padx=20, sticky="S")
 
         # okvir za igralno polje:
         self.plosca = tkinter.Frame(master)
         self.plosca.grid(row=1, column=1, rowspan=2)
 
         # nariše igralno polje
-        self.narisi_polje()
+        self.narisi_polje(clovek.Clovek(self), clovek.Clovek(self))
 
         # naredimo glavni menu:
         menu = tkinter.Menu(master)
@@ -74,8 +82,9 @@ class Gui():
         # in podmenu z izbiro vrste igre
         menu_igra = tkinter.Menu(menu, tearoff=0)
         menu.add_cascade(label="Nova igra", menu=menu_igra)
-        menu_igra.add_command(label="Proti računalniku", command=lambda: self.narisi_polje())#zaenkrat samo narišeta novo polje
-        menu_igra.add_command(label="Proti človeku", command=lambda: self.narisi_polje())
+        menu_igra.add_command(label="Proti računalniku", command=lambda: self.narisi_polje(clovek.Clovek(self),
+                                                                                           racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
+        menu_igra.add_command(label="Proti človeku", command=lambda: self.narisi_polje(clovek.Clovek(self), clovek.Clovek(self)))
         # naredimo menu z gumbom razveljavi
         moznosti = tkinter.Menu(menu, tearoff=0)
         menu.add_cascade(label="Možnosti", menu=moznosti)
@@ -92,24 +101,31 @@ class Gui():
         self.desna_vrednost.config(text=self.desni_rezultat)
         #prilagodimo izpis v opozorilni vrstici:
         if self.logika.stanje_igre() == NI_KONEC:
-            self.opozorila.config(text="Na potezi je igralec {}.".format(self.logika.na_potezi))
+            if self.logika.na_potezi == self.igralec1:
+                self.opozorila.config(text="Na potezi je igralec 1.")
+            elif self.logika.na_potezi == self.igralec2:
+                self.opozorila.config(text="Na potezi je igralec 2.")
         elif self.logika.stanje_igre() == NEODLOCENO:
             self.opozorila.config(text="Konec igre. Rezultat je neodločen.")
-        else:
-            self.opozorila.config(text="Konec igre. Zmagal je igralec {}.".format(self.logika.stanje_igre()))
+        elif self.logika.stanje_igre() == IGRALEC_1:
+            self.opozorila.config(text="Konec igre. Zmagal je igralec 1")
+        elif self.logika.stanje_igre() == IGRALEC_2:
+            self.opozorila.config(text="Konec igre. Zmagal je igralec 2")
 
 
     # funkcija, ki ob začetku nove igre nariše novo igralno ploščo.
     # Ustvarimo dve matriki:
         # self.matrika je matrika vrednosti [0,5],
         # matrika_polj pa je matrika objektov (labelov):
-    def narisi_polje(self):
+    def narisi_polje(self, igralec1, igralec2):
         vrstice = VELIKOST_IGRALNE_PLOSCE
         stolpci = VELIKOST_IGRALNE_PLOSCE
         self.opozorila.config(text="Na potezi je igralec 1.")
-        self.logika.narisi_polje()
+        self.logika.narisi_polje(igralec1, igralec2)
         self.matrika_polj = [] #matrika kvadratov
         self.matrika = self.logika.get_polje()
+        self.igralec1 = igralec1
+        self.igralec2 = igralec2
         self.leva_vrednost.config(text=self.logika.levi_rezultat)
         self.desna_vrednost.config(text=self.logika.desni_rezultat)
         for vrstica in range(vrstice):
@@ -124,20 +140,46 @@ class Gui():
                 polje.grid(row=vrstica, column=stolpec, padx=0.5, pady=0.5)
                 trenutna_vrstica.append(polje)
             self.matrika_polj.append(trenutna_vrstica)
+        self.igralec1.igraj()
 
 
     def barva_klik(self, indeks_barve):
         if indeks_barve not in self.logika.veljavne_poteze():
             self.opozorila.config(text="Izberi drugo barvo!")
         else:
-            igralec = self.logika.na_potezi
-            self.logika.naredi_potezo(indeks_barve, igralec)
+            trenutni_igralec = self.logika.na_potezi
+            trenutni_igralec.klik(indeks_barve)
             self.levi_rezultat, self.desni_rezultat = self.logika.get_rezultat()
-            if self.logika.stanje_igre() != NI_KONEC:
-                print('Zmagal je {}.'.format(self.logika.stanje_igre()))
-            return self.posodobi()
+            if self.logika.stanje_igre() == IGRALEC_1:
+                print('Zmagal je igralec 1.')
+            if self.logika.stanje_igre() == IGRALEC_2:
+                print('Zmagal je igralec 2.')
+         #   return self.posodobi()
+        # TODO Bauer nima metode posodobi v barva_klik
 
-# TODO razred igra (ni ločeno, nekaj je v gui, nekaj v logiki! -> popravi naprej)
+
+    def naredi_potezo(self, p):
+        "Naredi potezo, če je ta veljavna."
+        self.logika.naredi_potezo(p)
+        igralec = self.logika.na_potezi
+        if igralec is None:
+            # Poteza ni bila veljavna, nič se ni spremenilo
+            pass
+        else:
+            # Poteza je bila veljavna, narišemo jo na zaslon
+            # Ugotovimo, kako nadaljevati
+            if self.logika.stanje_igre() == NI_KONEC:
+                # Igra se nadaljuje
+                igralec.igraj()
+                self.levi_rezultat, self.desni_rezultat = self.logika.get_rezultat()
+                self.posodobi()
+            else:
+                # Igre je konec, končaj.
+                print("Konec igre. TODO.")
+                # TODO Končaj igro.
+
+
+############################################################################################
     def razveljavi_eno_potezo(self): #uporabno pri igri proti človeku
         (pozicija, na_potezi) = self.logika.razveljavi() #iz zgodovine dobimo zadnjo pozicijo in kdo je bil takrat na potezi
         self.matrika = pozicija
@@ -192,7 +234,7 @@ if __name__ == "__main__":
     globina = args.globina
     print(globina)
     # TODO globina
-    aplikacija = Gui(root)
+    aplikacija = Gui(root, globina)
 
     # Kontrolo prepustimo glavnemu oknu. Funkcija mainloop neha
     # delovati, ko okno zapremo.

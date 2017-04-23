@@ -8,43 +8,48 @@ NI_KONEC = "ni konec"
 # VELIKOST_IGRALNE_PLOŠČE lahko spreminjamo v Gui-ju.
 
 
-def nasprotnik(igralec):
-    """Vrni nasprotnika igralca."""
-    if igralec == IGRALEC_1:
-        return IGRALEC_2
-    elif igralec == IGRALEC_2:
-        return IGRALEC_1
-    else:
-        assert False, "neveljaven nasprotnik"
-
 class Logika():
     def __init__(self, VELIKOST_IGRALNE_PLOSCE):
         self.plosca = None
-        self.na_potezi = IGRALEC_1
+        self.na_potezi = None
         self.zgodovina = []
         self.rezultat = (0, 0)
         self.VELIKOST_IGRALNE_PLOSCE = VELIKOST_IGRALNE_PLOSCE
         self.polja_igralec1 = [(0, 0)]
         self.polja_igralec2 = [(self.VELIKOST_IGRALNE_PLOSCE - 1, self.VELIKOST_IGRALNE_PLOSCE - 1)]
 
+
+    def nasprotnik(self, igralec):
+        """Vrni nasprotnika igralca."""
+        if igralec == self.igralec1:
+            print("1 -> 2")
+            return self.igralec2
+        elif igralec == self.igralec2:
+            print('2 -> 1')
+            return self.igralec1
+        else:
+            assert False, "neveljaven nasprotnik"
+
     # funkcija, ki ob začetku nove igre nariše novo igralno ploščo.
     # Ustvarimo matriko vrednosti self.matrika
-    def narisi_polje(self):
+    def narisi_polje(self, igralec1, igralec2):
         vrstice = self.VELIKOST_IGRALNE_PLOSCE
         stolpci = self.VELIKOST_IGRALNE_PLOSCE
         self.zgodovina = []
         self.plosca = []
         self.levi_rezultat = 0
         self.desni_rezultat = 0
+        self.igralec1 = igralec1
+        self.igralec2 = igralec2
         for vrstica in range(vrstice):
             vrstica_matrike = []  # vrstica matrike matrika
             for stolpec in range(stolpci):
                 vrednost = random.randint(0, 5)
                 vrstica_matrike.append(vrednost)
             self.plosca.append(vrstica_matrike)
-        self.skeniraj_matriko(self.plosca[0][0], IGRALEC_1)
-        self.skeniraj_matriko(self.plosca[self.VELIKOST_IGRALNE_PLOSCE - 1][self.VELIKOST_IGRALNE_PLOSCE - 1], IGRALEC_2)
-        self.na_potezi = IGRALEC_1
+        self.skeniraj_matriko(self.plosca[0][0], igralec1)
+        self.skeniraj_matriko(self.plosca[self.VELIKOST_IGRALNE_PLOSCE - 1][self.VELIKOST_IGRALNE_PLOSCE - 1], igralec2)
+        self.na_potezi = igralec1
         self.shrani_pozicijo() #shrani pozicijo v zgodovino
 
 
@@ -68,6 +73,14 @@ class Logika():
         self.izracunaj_rezultat()
         return (self.plosca, self.na_potezi)
 
+    def kopija(self):
+        k = Logika(self.VELIKOST_IGRALNE_PLOSCE)
+        k.plosca = [self.plosca[i][:] for i in range(self.VELIKOST_IGRALNE_PLOSCE)]
+        k.na_potezi = self.na_potezi
+        k.igralec1 = self.igralec1
+        k.igralec2 = self.igralec2
+        return k
+
     def veljavne_poteze(self):
         """Vrni seznam veljavnih potez."""
         barva_1 = self.plosca[0][0]
@@ -85,9 +98,11 @@ class Logika():
     def izracunaj_rezultat(self):
         self.rezultat = (len(self.polja_igralec1), len(self.polja_igralec2))
 
-    def naredi_potezo(self, izbrana_barva, igralec):
+    def naredi_potezo(self, izbrana_barva):
         '''Povleci potezo p, ne naredi nič, če je neveljavna.
            Vrne stanje_igre() po potezi ali None, ce je poteza neveljavna.'''
+        igralec = self.na_potezi
+        # igralec.igraj()
         if izbrana_barva not in self.veljavne_poteze():
             print("Izberi drugo barvo!")
         else:
@@ -96,14 +111,16 @@ class Logika():
             self.izracunaj_rezultat()
             if self.stanje_igre() == NI_KONEC:
                 #Igre ni konec, na potezi je nasprotnik.
-                self.na_potezi = nasprotnik(igralec)
+                self.na_potezi = self.nasprotnik(igralec)
+#                self.na_potezi.igraj()
             else:
                 self.na_potezi = None
+
 
     def spremeni_matriko(self, p):
         '''Vrne stanje igre po potezi.'''
         igralec = self.na_potezi
-        if igralec == IGRALEC_1:
+        if igralec == self.igralec1:
             for (vrstica, stolpec) in self.polja_igralec1:
                 self.plosca[vrstica][stolpec] = p
         else:
@@ -113,7 +130,7 @@ class Logika():
 
     def skeniraj_matriko(self, p, igralec):
         '''Pregleda matriko in jo glede na potezo in igralca spremeni.'''
-        if igralec == IGRALEC_1:
+        if igralec == self.igralec1:
             polje = (0, 0)
             self.polja_igralec1 = self.preglej_sosednja_polja(polje, p, [])
         else:
@@ -155,5 +172,3 @@ class Logika():
             else:
                 return NEODLOCENO
         return NI_KONEC
-
-
