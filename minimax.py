@@ -19,8 +19,7 @@ class Minimax:
     # v drugem vlaknu kot tkinter).
 
     def __init__(self, globina, velikost):
-        self.globina_racunanja = globina
-        self.globina = globina  # do katere globine iščemo?
+        self.globina = globina  # do katere globine iščemo
         self.prekinitev = False  # ali moramo končati?
         self.jaz = None  # katerega igralca igramo (podatek dobimo kasneje)
         self.poteza = None  # sem napišemo potezo, ko jo najdemo
@@ -41,7 +40,7 @@ class Minimax:
         self.poteza = None  # Sem napišemo potezo, ko jo najdemo
 
         # Poženemo minimax
-        (poteza, vrednost) = self.minimax(self.globina_racunanja, True)
+        (poteza, vrednost) = self.minimax(self.globina, True)
         self.jaz = None
         self.logika = None
         if not self.prekinitev:
