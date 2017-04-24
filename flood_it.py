@@ -3,7 +3,7 @@ import argparse   # za argumente iz ukazne vrstice
 import logging    # za odpravljanje napak
 
 # Privzeta minimax globina
-MINIMAX_GLOBINA = 3
+MINIMAX_GLOBINA = 1
 
 import logika
 import clovek
@@ -161,6 +161,7 @@ class Gui():
     def naredi_potezo(self, p):
         "Naredi potezo, če je ta veljavna."
         self.logika.naredi_potezo(p)
+        self.posodobi()
         igralec = self.logika.na_potezi
         if igralec is None:
             # Poteza ni bila veljavna, nič se ni spremenilo
@@ -171,8 +172,8 @@ class Gui():
             if self.logika.stanje_igre() == NI_KONEC:
                 # Igra se nadaljuje
                 igralec.igraj()
-                self.levi_rezultat, self.desni_rezultat = self.logika.get_rezultat()
-                self.posodobi()
+                # self.levi_rezultat, self.desni_rezultat = self.logika.get_rezultat()
+                # self.posodobi()
             else:
                 # Igre je konec, končaj.
                 print("Konec igre. TODO.")
@@ -236,6 +237,5 @@ if __name__ == "__main__":
     # TODO globina
     aplikacija = Gui(root, globina)
 
-    # Kontrolo prepustimo glavnemu oknu. Funkcija mainloop neha
-    # delovati, ko okno zapremo.
+    # Kontrolo prepustimo glavnemu oknu. Funkcija mainloop neha delovati, ko okno zapremo.
     root.mainloop()

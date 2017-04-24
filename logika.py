@@ -64,6 +64,7 @@ class Logika():
         for vrstica in range(self.VELIKOST_IGRALNE_PLOSCE):
             p.append(self.plosca[vrstica][:])
         self.zgodovina.append((p, self.na_potezi, self.polja_igralec1, self.polja_igralec2))
+        print ("shranili smo {0}".format(self.zgodovina[-1][1:]))
 
     def razveljavi(self):
         """Razveljavi potezo in se vrni v prejšnje stanje."""
@@ -71,6 +72,7 @@ class Logika():
             return (self.plosca, self.na_potezi)
         (self.plosca, self.na_potezi, self.polja_igralec1, self.polja_igralec2) = self.zgodovina.pop()#nastavimo vrednosti iz zgodovine
         self.izracunaj_rezultat()
+        print ("obnovili smo {1} {2} {3}".format(self.plosca, self.na_potezi, self.polja_igralec1, self.polja_igralec2))
         return (self.plosca, self.na_potezi)
 
     def kopija(self):

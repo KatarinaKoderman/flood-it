@@ -16,4 +16,5 @@ class Clovek():
 
     def klik(self, p):
         # Povlečemo potezo. Če ni veljavna, se ne zgodi nič.
+        print("Kliknil uporabnik.")
         self.gui.naredi_potezo(p)

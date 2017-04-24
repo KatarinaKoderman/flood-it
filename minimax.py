@@ -54,13 +54,10 @@ class Minimax:
 
     def vrednost_pozicije(self):
         # TODO
-        """Ocena vrednosti pozicije: sešteje vrednosti vseh trojk na plošči."""
-        # Slovar, ki pove, koliko so vredne posamezne trojke, kjer "(x,y) : v" pomeni:
-        # če imamo v trojki x znakov igralca in y znakov nasprotnika (in 3-x-y praznih polj),
-        # potem je taka trojka za self.jaz vredna v.
-        # Trojke, ki se ne pojavljajo v slovarju, so vredne 0.
-        (prvi_igralec, drugi_igralec) = self.logika.rezultat
-        return drugi_igralec - prvi_igralec
+        (prvi_igralec, drugi_igralec) = self.logika.get_rezultat()
+        print("rezultat {0} polja drugega igralca so {1}".format(drugi_igralec, self.logika.polja_igralec2))
+        # return drugi_igralec - prvi_igralec
+        return drugi_igralec
 
     def minimax(self, globina, maksimiziramo):
         """Glavna metoda minimax."""
@@ -88,13 +85,16 @@ class Minimax:
                     # Maksimiziramo
                     najboljsa_poteza = None
                     vrednost_najboljse = -Minimax.NESKONCNO
+                    print(str(self.logika.veljavne_poteze()))
                     for p in self.logika.veljavne_poteze():
                         self.logika.naredi_potezo(p)
                         vrednost = self.minimax(globina-1, False)[1]
                         self.logika.razveljavi()
+                        print("vrednost" + str(vrednost) + ", poteza" + str(p))
                         if vrednost > vrednost_najboljse:
                             vrednost_najboljse = vrednost
                             najboljsa_poteza = p
+
                 else:
                     # Minimiziramo
                     print("minimiziramo")
