@@ -73,6 +73,8 @@ class Logika():
         k = Logika(self.velikost)
         k.plosca = [self.plosca[i][:] for i in range(self.velikost)]
         k.na_potezi = self.na_potezi
+        k.polja_igralec1 = self.polja_igralec1
+        k.polja_igralec2 = self.polja_igralec2
         return k
 
     def veljavne_poteze(self):
