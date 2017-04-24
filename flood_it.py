@@ -25,11 +25,6 @@ class Gui():
     VELIKOST_POLJA = 1
     SEZNAM_BARV = ['deep sky blue', 'yellow', 'snow4', 'lawn green', 'maroon1', 'navy']
 
-    # Vpeljemo parametre:
-    levi_rezultat = 0
-    desni_rezultat = 0
-    matrika = []
-
     def __init__(self, master, globina):
         #ustvarimo objekt
         self.logika = logika.Logika(VELIKOST_IGRALNE_PLOSCE)
@@ -53,12 +48,13 @@ class Gui():
         # levo in desno postavimo label-a z vmesnim rezultatom
         levi_okvir = tkinter.Frame(master)#okvir v katem bosta levo ime in levi rezultat
         levi_okvir.grid(row=1, column=0, padx=20, sticky="N")
-        self.leva_vrednost = tkinter.Label(levi_okvir, text=self.levi_rezultat, font=("Comic Sans", 16), width=3)
+        (levi_rezultat, desni_rezultat) = self.logika.get_rezultat()
+        self.leva_vrednost = tkinter.Label(levi_okvir, text=levi_rezultat, font=("Comic Sans", 16), width=3)
         self.leva_vrednost.pack(side=tkinter.TOP)
         #TODO
         desni_okvir = tkinter.Frame(master) #okvir v katerem bosta desno ime in desni rezultat
         desni_okvir.grid(row=2, column=2, padx=20, sticky="N")
-        self.desna_vrednost = tkinter.Label(desni_okvir, text=self.desni_rezultat, font=("Comic Sans", 16), width=3)
+        self.desna_vrednost = tkinter.Label(desni_okvir, text=desni_rezultat, font=("Comic Sans", 16), width=3)
         self.desna_vrednost.pack(side=tkinter.BOTTOM)
         #TODO
 
@@ -97,8 +93,9 @@ class Gui():
         for vrstica in range(VELIKOST_IGRALNE_PLOSCE):
             for stolpec in range(VELIKOST_IGRALNE_PLOSCE):
                 self.matrika_polj[vrstica][stolpec].config(bg=Gui.SEZNAM_BARV[self.matrika[vrstica][stolpec]])
-        self.leva_vrednost.config(text=self.levi_rezultat)
-        self.desna_vrednost.config(text=self.desni_rezultat)
+        (levi_rezultat, desni_rezultat) = self.logika.get_rezultat()
+        self.leva_vrednost.config(text=levi_rezultat)
+        self.desna_vrednost.config(text=desni_rezultat)
         #prilagodimo izpis v opozorilni vrstici:
         if self.logika.stanje_igre() == NI_KONEC:
             if self.logika.na_potezi == self.igralec1:
@@ -149,7 +146,6 @@ class Gui():
         else:
             trenutni_igralec = self.logika.na_potezi
             trenutni_igralec.klik(indeks_barve)
-            self.levi_rezultat, self.desni_rezultat = self.logika.get_rezultat()
             if self.logika.stanje_igre() == IGRALEC_1:
                 print('Zmagal je igralec 1.')
             if self.logika.stanje_igre() == IGRALEC_2:
@@ -172,8 +168,6 @@ class Gui():
             if self.logika.stanje_igre() == NI_KONEC:
                 # Igra se nadaljuje
                 igralec.igraj()
-                # self.levi_rezultat, self.desni_rezultat = self.logika.get_rezultat()
-                # self.posodobi()
             else:
                 # Igre je konec, končaj.
                 print("Konec igre. TODO.")
@@ -184,7 +178,6 @@ class Gui():
     def razveljavi_eno_potezo(self): #uporabno pri igri proti človeku
         (pozicija, na_potezi) = self.logika.razveljavi() #iz zgodovine dobimo zadnjo pozicijo in kdo je bil takrat na potezi
         self.matrika = pozicija
-        (self.levi_rezultat, self.desni_rezultat) = self.logika.get_rezultat() #ponovno nastavimo levi in desni rezultat
         self.posodobi()
 
     def razveljavi_dve_potezi(self): #uporabno pri igri proti računalniku
