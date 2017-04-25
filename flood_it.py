@@ -3,18 +3,17 @@ import argparse   # za argumente iz ukazne vrstice
 import logging    # za odpravljanje napak
 
 # Privzeta minimax globina
-MINIMAX_GLOBINA = 1
+MINIMAX_GLOBINA = 3
 
 import logika
 import clovek
 import racunalnik
 import minimax
 
-
 # TODO velikost polja se mora spremeniti, če se spremeni velikost okna
 
-# uvedemo parametre:
-VELIKOST_IGRALNE_PLOSCE = 12
+# uvedemo parameter:
+VELIKOST_IGRALNE_PLOSCE = 10
 
 class Gui():
     # Vpeljemo konstante:
@@ -99,7 +98,7 @@ class Gui():
                 self.opozorila.config(text="Na potezi je igralec 2.")
             else:
                 assert False
-        elif self.logika.stanje_igre() == NEODLOCENO:
+        elif self.logika.stanje_igre() == logika.NEODLOCENO:
             self.opozorila.config(text="Konec igre. Rezultat je neodločen.")
         elif self.logika.stanje_igre() == logika.IGRALEC1:
             self.opozorila.config(text="Konec igre. Zmagal je igralec 1")
@@ -109,9 +108,6 @@ class Gui():
             assert False
 
     # funkcija, ki ob začetku nove igre nariše novo igralno ploščo.
-    # Ustvarimo dve matriki:
-        # self.matrika je matrika vrednosti [0,5],
-        # matrika_polj pa je matrika objektov (labelov):
     def narisi_polje(self, igralec1, igralec2):
         self.logika = logika.Logika(VELIKOST_IGRALNE_PLOSCE)
         vrstice = VELIKOST_IGRALNE_PLOSCE
@@ -154,7 +150,7 @@ class Gui():
                 print('Zmagal je igralec 1.')
             if self.logika.stanje_igre() == logika.IGRALEC2:
                 print('Zmagal je igralec 2.')
-         #   return self.posodobi()
+        # return self.posodobi()
         # TODO Bauer nima metode posodobi v barva_klik
 
 
@@ -179,11 +175,12 @@ class Gui():
             else:
                 # Igre je konec, končaj.
                 print("Konec igre. TODO.")
-                assert Fallse, "konec igre ni implementiran"
+                assert False, "konec igre ni implementiran"
                 # TODO Končaj igro.
 
 
 ############################################################################################
+
     def razveljavi_eno_potezo(self): #uporabno pri igri proti človeku
         (pozicija, na_potezi) = self.logika.razveljavi() #iz zgodovine dobimo zadnjo pozicijo in kdo je bil takrat na potezi
         self.matrika = pozicija
