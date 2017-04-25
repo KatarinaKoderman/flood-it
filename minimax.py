@@ -1,19 +1,10 @@
 import logging
 import logika
-# TODO v logika.py imamo funkcijo, ki določa nasprotnika + ostalo
 from flood_it import VELIKOST_IGRALNE_PLOSCE
-
-# TODO parametre vzamemo iz igre (flood_it)
-# uvedemo parametre:
-IGRALEC_1 = "1"  # igralec, ki začne v zgornjem levem kotu
-IGRALEC_2 = "2"  # igralec, ki začne v spodnjem desnem kotu
-NEODLOCENO = "neodločeno"
-NI_KONEC = "ni konec"
-# VELIKOST_IGRALNE_PLOSCE lahko spreminjamo v Gui-ju.  # TODO zaenkrat
 
 ## Algoritem minimax
 
-class Minimax:
+class Minimax():
     # Algoritem minimax predstavimo z objektom, ki hrani stanje igre in
     # algoritma, nima pa dostopa do GUI (ker ga ne sme uporabljati, saj deluje
     # v drugem vlaknu kot tkinter).
@@ -49,7 +40,8 @@ class Minimax:
             self.poteza = poteza
 
     # Vrednosti igre
-    VREDNOST_POLJA = 1  # Mora biti vsaj 10^5
+    VREDNOST_POLJA = 1
+    ZMAGA = VELIKOST_IGRALNE_PLOSCE * VELIKOST_IGRALNE_PLOSCE - 1
     NESKONCNO = VELIKOST_IGRALNE_PLOSCE * VELIKOST_IGRALNE_PLOSCE  # Več kot zmaga
 
     def vrednost_pozicije(self):
@@ -66,7 +58,7 @@ class Minimax:
             logging.debug("Minimax prekinja, globina = {0}".format(globina))
             return None, 0
         zmagovalec = self.logika.stanje_igre()
-        if zmagovalec in (IGRALEC_1, IGRALEC_2, NEODLOCENO):
+        if zmagovalec in (logika.IGRALEC1, logika.IGRALEC2, logika.NEODLOCENO):
             # Igre je konec, vrnemo njeno vrednost
             if zmagovalec == self.jaz:
                 return (None, Minimax.ZMAGA)
@@ -74,7 +66,7 @@ class Minimax:
                 return (None, -Minimax.ZMAGA)
             else:
                 return (None, 0)
-        elif zmagovalec == NI_KONEC:
+        elif zmagovalec == logika.NI_KONEC:
             # Igre ni konec
             if globina == 0:
                 return (None, self.vrednost_pozicije())
