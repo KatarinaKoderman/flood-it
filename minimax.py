@@ -42,14 +42,17 @@ class Minimax():
     # Vrednosti igre
     VREDNOST_POLJA = 1
     ZMAGA = VELIKOST_IGRALNE_PLOSCE * VELIKOST_IGRALNE_PLOSCE - 1
-    NESKONCNO = VELIKOST_IGRALNE_PLOSCE * VELIKOST_IGRALNE_PLOSCE  # Več kot zmaga
+    NESKONCNO = 100 * VELIKOST_IGRALNE_PLOSCE * VELIKOST_IGRALNE_PLOSCE  # Več kot zmaga
 
     def vrednost_pozicije(self):
         # TODO
         (prvi_igralec, drugi_igralec) = self.logika.get_rezultat()
-        print("rezultat {0} polja drugega igralca so {1}".format(drugi_igralec, self.logika.polja_igralec2))
-        # return drugi_igralec - prvi_igralec
-        return drugi_igralec
+        if self.jaz == logika.IGRALEC1:
+            return (prvi_igralec - drugi_igralec, prvi_igralec)
+        elif self.jaz == logika.IGRALEC2:
+            return (drugi_igralec - prvi_igralec, drugi_igralec)
+        else:
+            assert False
 
     def minimax(self, globina, maksimiziramo):
         """Glavna metoda minimax."""
@@ -59,13 +62,14 @@ class Minimax():
             return None, 0
         zmagovalec = self.logika.stanje_igre()
         if zmagovalec in (logika.IGRALEC1, logika.IGRALEC2, logika.NEODLOCENO):
-            # Igre je konec, vrnemo njeno vrednost
-            if zmagovalec == self.jaz:
-                return (None, Minimax.ZMAGA)
-            elif zmagovalec == self.logika.nasprotnik(self.jaz):
-                return (None, -Minimax.ZMAGA)
-            else:
-                return (None, 0)
+            return (None, self.vrednost_pozicije())
+            # # Igre je konec, vrnemo njeno vrednost
+            # if zmagovalec == self.jaz:
+            #     return (None, Minimax.ZMAGA)
+            # elif zmagovalec == self.logika.nasprotnik(self.jaz):
+            #     return (None, -Minimax.ZMAGA)
+            # else:
+            #     return (None, 0)
         elif zmagovalec == logika.NI_KONEC:
             # Igre ni konec
             if globina == 0:
@@ -73,29 +77,29 @@ class Minimax():
             else:
                 # Naredimo eno stopnjo minimax
                 if maksimiziramo:
-                    print("maksimiziramo")
                     # Maksimiziramo
                     najboljsa_poteza = None
-                    vrednost_najboljse = -Minimax.NESKONCNO
+                    vrednost_najboljse = (-Minimax.NESKONCNO, 0)
                     print(str(self.logika.veljavne_poteze()))
                     for p in self.logika.veljavne_poteze():
                         self.logika.naredi_potezo(p)
                         vrednost = self.minimax(globina-1, False)[1]
                         self.logika.razveljavi()
-                        print("vrednost" + str(vrednost) + ", poteza" + str(p))
+                        print ("{0}max ({1}): best = {2}, current = {3}".format("  " * (6 - globina), self.jaz, (vrednost_najboljse, najboljsa_poteza), (vrednost, p)))
                         if vrednost > vrednost_najboljse:
                             vrednost_najboljse = vrednost
                             najboljsa_poteza = p
 
                 else:
                     # Minimiziramo
-                    print("minimiziramo")
                     najboljsa_poteza = None
-                    vrednost_najboljse = Minimax.NESKONCNO
+                    vrednost_najboljse = (Minimax.NESKONCNO, 0)
+                    print(str(self.logika.veljavne_poteze()))
                     for p in self.logika.veljavne_poteze():
                         self.logika.naredi_potezo(p)
                         vrednost = self.minimax(globina-1, True)[1]
                         self.logika.razveljavi()
+                        print ("{0}min ({1}): best = {2}, current = {3}".format("  " * (6 - globina), self.jaz, (vrednost_najboljse, najboljsa_poteza), (vrednost, p)))
                         if vrednost < vrednost_najboljse:
                             vrednost_najboljse = vrednost
                             najboljsa_poteza = p
