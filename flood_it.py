@@ -72,9 +72,13 @@ class Gui():
         # in podmenu z izbiro vrste igre
         menu_igra = tkinter.Menu(menu, tearoff=0)
         menu.add_cascade(label="Nova igra", menu=menu_igra)
-        menu_igra.add_command(label="Proti računalniku", command=lambda: self.narisi_polje(clovek.Clovek(self),
-                                                                                           racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
-        menu_igra.add_command(label="Proti človeku", command=lambda: self.narisi_polje(clovek.Clovek(self), clovek.Clovek(self)))
+        menu_igra.add_command(label="Človek proti računalniku",
+                              command=lambda: self.narisi_polje(clovek.Clovek(self),
+                                                                racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
+        menu_igra.add_command(label="Človek proti človeku", command=lambda: self.narisi_polje(clovek.Clovek(self), clovek.Clovek(self)))
+        menu_igra.add_command(label="Računalnik proti računalniku",
+                              command=lambda: self.narisi_polje(racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE)),
+                                                                racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
         # naredimo menu z gumbom razveljavi
         moznosti = tkinter.Menu(menu, tearoff=0)
         menu.add_cascade(label="Možnosti", menu=moznosti)
