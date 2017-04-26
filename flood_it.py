@@ -3,7 +3,7 @@ import argparse   # za argumente iz ukazne vrstice
 import logging    # za odpravljanje napak
 
 # Privzeta minimax globina
-MINIMAX_GLOBINA = 5
+MINIMAX_GLOBINA = 7
 
 import logika
 import clovek
@@ -22,6 +22,8 @@ class Gui():
 
     def __init__(self, master, globina):
         self.logika = None # Tu bo spravljena logika igre, ko se bo igra dejansko začela
+        self.igralec1 = None
+        self.igralec2 = None
 
         # narišemo igralno okno
         self.okno = tkinter.Canvas(master)
@@ -75,7 +77,8 @@ class Gui():
         menu_igra.add_command(label="Človek proti računalniku",
                               command=lambda: self.narisi_polje(clovek.Clovek(self),
                                                                 racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
-        menu_igra.add_command(label="Človek proti človeku", command=lambda: self.narisi_polje(clovek.Clovek(self), clovek.Clovek(self)))
+        menu_igra.add_command(label="Človek proti človeku", command=lambda: self.narisi_polje(clovek.Clovek(self),
+                                                                                              clovek.Clovek(self)))
         menu_igra.add_command(label="Računalnik proti računalniku",
                               command=lambda: self.narisi_polje(racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE)),
                                                                 racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
@@ -108,6 +111,7 @@ class Gui():
                 assert False
         elif self.logika.stanje_igre() == logika.NEODLOCENO:
             self.opozorila.config(text="Konec igre. Rezultat je neodločen.")
+
         elif self.logika.stanje_igre() == logika.IGRALEC1:
             self.opozorila.config(text="Konec igre. Zmagal je igralec 1")
         elif self.logika.stanje_igre() == logika.IGRALEC2:
@@ -117,6 +121,8 @@ class Gui():
 
     # funkcija, ki ob začetku nove igre nariše novo igralno ploščo.
     def narisi_polje(self, igralec1, igralec2):
+        self.prekini_igralce()
+        print("Prekinil sem igralca.")
         self.logika = logika.Logika(VELIKOST_IGRALNE_PLOSCE)
         vrstice = VELIKOST_IGRALNE_PLOSCE
         stolpci = VELIKOST_IGRALNE_PLOSCE
@@ -145,19 +151,16 @@ class Gui():
 
 
     def barva_klik(self, indeks_barve):
-        if indeks_barve not in self.logika.veljavne_poteze():
-            self.opozorila.config(text="Izberi drugo barvo!")
+        if self.logika.na_potezi == None:
+            pass
         else:
-            if self.logika.na_potezi == logika.IGRALEC1:
-                self.igralec1.klik(indeks_barve)
-            elif self.logika.na_potezi == logika.IGRALEC2:
-                self.igralec2.klik(indeks_barve)
+            if indeks_barve not in self.logika.veljavne_poteze():
+                self.opozorila.config(text="Izberi drugo barvo!")
             else:
-                assert False
-            if self.logika.stanje_igre() == logika.IGRALEC1:
-                print('Zmagal je igralec 1.')
-            if self.logika.stanje_igre() == logika.IGRALEC2:
-                print('Zmagal je igralec 2.')
+                if self.logika.na_potezi == logika.IGRALEC1:
+                    self.igralec1.klik(indeks_barve)
+                else:
+                    self.igralec2.klik(indeks_barve)
 
     def naredi_potezo(self, p):
         "Naredi potezo, če je ta veljavna."
@@ -179,10 +182,36 @@ class Gui():
                     assert False
             else:
                 # Igre je konec, končaj.
+                self.koncaj_igro(r)
                 print("Konec igre. TODO.")
-                assert False, "konec igre ni implementiran"
                 # TODO Končaj igro.
 
+    def koncaj_igro(self, zmagovalec):
+        "Nastavi stanje igre na konec igre."
+        if zmagovalec == logika.IGRALEC1:
+            self.opozorila.config(text="Igre je konec. Zmagal je igralec 1.")
+            self.leva_vrednost.config(font=("Comic Sans", 20, "bold"))
+        elif zmagovalec == logika.IGRALEC2:
+            self.opozorila.config(text="Igre je konec. Zmagal je igralec 2.")
+            self.desna_vrednost.config(font=("Comic Sans", 20, "bold"))
+        else:
+            self.opozorila.config(text="Igre je konec. Rezultat je neodločen.")
+            self.leva_vrednost.config(font=("Comic Sans", 20, "bold"))
+            self.desna_vrednost.config(font=("Comic Sans", 20, "bold"))
+
+    def prekini_igralce(self):
+        "Igralcem sporoči, da nehajo razmišljati."
+        logging.debug("prekinjam igralce")
+        if self.igralec1:
+            self.igralec1.prekini()
+        if self.igralec2:
+            self.igralec2.prekini()
+
+    def zapri_okno(self, master):
+        "Metoda se pokliče, ko  uporabnik zapre aplikacijo."
+        # vporedna vlakna se morajo končati
+        self.prekini_igralce()
+        master.destroy()
 
 ############################################################################################
 

@@ -1,5 +1,6 @@
 import threading
 import minimax
+import logging
 
 class Racunalnik():
     def __init__(self, gui, algoritem):
@@ -33,7 +34,7 @@ class Racunalnik():
     def prekini(self):
         # To metodo kliče gui, če je treba prekiniti razmišljanje.
         if self.mislec:
-            logging.debug ("Prekinjamo {0}".format(self.mislec))
+            logging.debug("Prekinjamo {0}".format(self.mislec))
             # Algoritmu sporočimo, da mora nehati z razmišljanjem
             self.algoritem.prekini()
             # Počakamo, da se vlakno ustavi
