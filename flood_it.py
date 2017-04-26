@@ -3,7 +3,7 @@ import argparse   # za argumente iz ukazne vrstice
 import logging    # za odpravljanje napak
 
 # Privzeta minimax globina
-MINIMAX_GLOBINA = 3
+MINIMAX_GLOBINA = 5
 
 import logika
 import clovek
@@ -72,9 +72,13 @@ class Gui():
         # in podmenu z izbiro vrste igre
         menu_igra = tkinter.Menu(menu, tearoff=0)
         menu.add_cascade(label="Nova igra", menu=menu_igra)
-        menu_igra.add_command(label="Proti računalniku", command=lambda: self.narisi_polje(clovek.Clovek(self),
-                                                                                           racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
-        menu_igra.add_command(label="Proti človeku", command=lambda: self.narisi_polje(clovek.Clovek(self), clovek.Clovek(self)))
+        menu_igra.add_command(label="Človek proti računalniku",
+                              command=lambda: self.narisi_polje(clovek.Clovek(self),
+                                                                racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
+        menu_igra.add_command(label="Človek proti človeku", command=lambda: self.narisi_polje(clovek.Clovek(self), clovek.Clovek(self)))
+        menu_igra.add_command(label="Računalnik proti računalniku",
+                              command=lambda: self.narisi_polje(racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE)),
+                                                                racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
         # naredimo menu z gumbom razveljavi
         moznosti = tkinter.Menu(menu, tearoff=0)
         menu.add_cascade(label="Možnosti", menu=moznosti)
@@ -94,8 +98,12 @@ class Gui():
         if self.logika.stanje_igre() == logika.NI_KONEC:
             if self.logika.na_potezi == logika.IGRALEC1:
                 self.opozorila.config(text="Na potezi je igralec 1.")
+                self.leva_vrednost.config(font=("Comic Sans", 20, "bold"))
+                self.desna_vrednost.config(font=("Comic Sans", 16))
             elif self.logika.na_potezi == logika.IGRALEC2:
                 self.opozorila.config(text="Na potezi je igralec 2.")
+                self.desna_vrednost.config(font=("Comic Sans", 20, "bold"))
+                self.leva_vrednost.config(font=("Comic Sans", 16))
             else:
                 assert False
         elif self.logika.stanje_igre() == logika.NEODLOCENO:
@@ -150,9 +158,6 @@ class Gui():
                 print('Zmagal je igralec 1.')
             if self.logika.stanje_igre() == logika.IGRALEC2:
                 print('Zmagal je igralec 2.')
-        # return self.posodobi()
-        # TODO Bauer nima metode posodobi v barva_klik
-
 
     def naredi_potezo(self, p):
         "Naredi potezo, če je ta veljavna."
