@@ -3,7 +3,7 @@ import argparse   # za argumente iz ukazne vrstice
 import logging    # za odpravljanje napak
 
 # Privzeta minimax globina
-MINIMAX_GLOBINA = 7
+MINIMAX_GLOBINA = 5
 
 import logika
 import clovek
@@ -15,13 +15,14 @@ import minimax
 # uvedemo parameter:
 VELIKOST_IGRALNE_PLOSCE = 10
 
+
 class Gui():
     # Vpeljemo konstante:
     VELIKOST_POLJA = 1
     SEZNAM_BARV = ['deep sky blue', 'yellow', 'snow4', 'lawn green', 'maroon1', 'navy']
 
     def __init__(self, master, globina):
-        self.logika = None # Tu bo spravljena logika igre, ko se bo igra dejansko začela
+        self.logika = None  # Tu bo spravljena logika igre, ko se bo igra dejansko začela
         self.igralec1 = None
         self.igralec2 = None
 
@@ -44,29 +45,32 @@ class Gui():
 
         # levo in desno postavimo label-a z vmesnim rezultatom
         levi_okvir = tkinter.Frame(master)#okvir v katem bosta levo ime in levi rezultat
-        levi_okvir.grid(row=1, column=0, padx=20, sticky="N")
-        self.leva_vrednost = tkinter.Label(levi_okvir, text="0", font=("Comic Sans", 16), width=3)
-        self.leva_vrednost.pack(side=tkinter.TOP)
-        #TODO
-        desni_okvir = tkinter.Frame(master) #okvir v katerem bosta desno ime in desni rezultat
-        desni_okvir.grid(row=2, column=2, padx=20, sticky="N")
-        self.desna_vrednost = tkinter.Label(desni_okvir, text="0", font=("Comic Sans", 16), width=3)
-        self.desna_vrednost.pack(side=tkinter.BOTTOM)
-        #TODO
+        levi_okvir.grid(row=1, column=0, padx=20, sticky="S")
+        self.leva_vrednost = tkinter.Label(levi_okvir, text="0", font=("Comic Sans", 16), borderwidth=20)
+        self.leva_vrednost.pack(side=tkinter.BOTTOM)
 
+        desni_okvir = tkinter.Frame(master) #okvir v katerem bosta desno ime in desni rezultat
+        desni_okvir.grid(row=1, column=2, padx=20, sticky="S")
+        self.desna_vrednost = tkinter.Label(desni_okvir, text="0", font=("Comic Sans", 16), borderwidth=20)
+        self.desna_vrednost.pack(side=tkinter.BOTTOM)
+
+        # pod vmesnim rezultatom ustvarimo polje za vnos imen igralcev
+        self.ime_igralca1 = tkinter.Entry(master, justify="center")
+        self.ime_igralca1.insert(0, "Igralec 1")
+        self.ime_igralca1.grid(row=2, column=0, padx=20, sticky="N")
+
+        self.ime_igralca2 = tkinter.Entry(master, justify="center")
+        self.ime_igralca2.insert(0, "Igralec 2")
+        self.ime_igralca2.grid(row=2, column=2, padx=20, sticky="N")
         # TODO dokončaj oblikovanje, uporabi vnos v prikazu veznega teksta (tj. kdo je na potezi, zmagovalec)
-        #nad vmesnim rezultatom ustvarimo polje za vnos imena igralca
-        # self.igralec1 = tkinter.Entry(master)
-        # self.igralec1.grid(row=2, column=0, padx=20, sticky="S")
-        # self.igralec2 = tkinter.Label(master, text="igralec2")
-        # self.igralec2.grid(row=1, column=2, padx=20, sticky="S")
 
         # okvir za igralno polje:
         self.plosca = tkinter.Frame(master)
         self.plosca.grid(row=1, column=1, rowspan=2)
 
         # nariše igralno polje
-        self.narisi_polje(clovek.Clovek(self), clovek.Clovek(self))
+        # privzeto: zagnana igra je igra človek proti računalniku
+        self.narisi_polje(clovek.Clovek(self), racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE)))
 
         # naredimo glavni menu:
         menu = tkinter.Menu(master)
@@ -100,33 +104,26 @@ class Gui():
         #prilagodimo izpis v opozorilni vrstici:
         if self.logika.stanje_igre() == logika.NI_KONEC:
             if self.logika.na_potezi == logika.IGRALEC1:
-                self.opozorila.config(text="Na potezi je igralec 1.")
+                self.opozorila.config(text="Na potezi je {}.".format(self.ime_igralca1.get()))
                 self.leva_vrednost.config(font=("Comic Sans", 20, "bold"))
                 self.desna_vrednost.config(font=("Comic Sans", 16))
             elif self.logika.na_potezi == logika.IGRALEC2:
-                self.opozorila.config(text="Na potezi je igralec 2.")
+                self.opozorila.config(text="Na potezi je {}.".format(self.ime_igralca2.get()))
                 self.desna_vrednost.config(font=("Comic Sans", 20, "bold"))
                 self.leva_vrednost.config(font=("Comic Sans", 16))
             else:
                 assert False
-        elif self.logika.stanje_igre() == logika.NEODLOCENO:
-            self.opozorila.config(text="Konec igre. Rezultat je neodločen.")
-
-        elif self.logika.stanje_igre() == logika.IGRALEC1:
-            self.opozorila.config(text="Konec igre. Zmagal je igralec 1")
-        elif self.logika.stanje_igre() == logika.IGRALEC2:
-            self.opozorila.config(text="Konec igre. Zmagal je igralec 2")
         else:
-            assert False
+            # Igre je konec, metoda naredi_potezo bo s klicanjem drugih metod končala igro.
+            pass
 
     # funkcija, ki ob začetku nove igre nariše novo igralno ploščo.
     def narisi_polje(self, igralec1, igralec2):
         self.prekini_igralce()
-        print("Prekinil sem igralca.")
         self.logika = logika.Logika(VELIKOST_IGRALNE_PLOSCE)
         vrstice = VELIKOST_IGRALNE_PLOSCE
         stolpci = VELIKOST_IGRALNE_PLOSCE
-        self.opozorila.config(text="Na potezi je igralec 1.")
+        self.opozorila.config(text="Na potezi je {}.".format(self.ime_igralca1.get()))
         self.logika.narisi_polje()
         self.matrika_polj = [] #matrika kvadratov
         self.matrika = self.logika.get_polje()
@@ -183,19 +180,17 @@ class Gui():
             else:
                 # Igre je konec, končaj.
                 self.koncaj_igro(r)
-                print("Konec igre. TODO.")
-                # TODO Končaj igro.
 
     def koncaj_igro(self, zmagovalec):
         "Nastavi stanje igre na konec igre."
         if zmagovalec == logika.IGRALEC1:
-            self.opozorila.config(text="Igre je konec. Zmagal je igralec 1.")
+            self.opozorila.config(text="Bravo {}! Zmaga je tvoja!".format(self.ime_igralca1.get()))
             self.leva_vrednost.config(font=("Comic Sans", 20, "bold"))
         elif zmagovalec == logika.IGRALEC2:
-            self.opozorila.config(text="Igre je konec. Zmagal je igralec 2.")
+            self.opozorila.config(text="Bravo {}! Zmaga je tvoja!".format(self.ime_igralca2.get()))
             self.desna_vrednost.config(font=("Comic Sans", 20, "bold"))
         else:
-            self.opozorila.config(text="Igre je konec. Rezultat je neodločen.")
+            self.opozorila.config(text="Igre je konec, rezultat pa neodločen.")
             self.leva_vrednost.config(font=("Comic Sans", 20, "bold"))
             self.desna_vrednost.config(font=("Comic Sans", 20, "bold"))
 
@@ -264,11 +259,10 @@ if __name__ == "__main__":
     # Naredimo objekt razreda Gui in ga spravimo v spremenljivko,
     # sicer bo Python mislil, da je objekt neuporabljen in ga bo pobrisal
     # iz pomnilnika.
-    print(args)
     globina = args.globina
-    print(globina)
-    # TODO globina
     aplikacija = Gui(root, globina)
 
     # Kontrolo prepustimo glavnemu oknu. Funkcija mainloop neha delovati, ko okno zapremo.
+    root.grid_columnconfigure(0, minsize=150)
+    root.grid_columnconfigure(2, minsize=150)
     root.mainloop()
