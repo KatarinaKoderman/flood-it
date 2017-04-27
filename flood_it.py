@@ -13,7 +13,7 @@ import minimax
 # TODO velikost polja se mora spremeniti, če se spremeni velikost okna
 
 # uvedemo parameter:
-VELIKOST_IGRALNE_PLOSCE = 10
+VELIKOST_IGRALNE_PLOSCE = 12
 
 
 class Gui():
@@ -38,10 +38,13 @@ class Gui():
         gumbi = tkinter.Frame(master)
         gumbi.grid(row=3, column=1)
         # nariše gumbe
+        self.seznam_gumbov = []
         for i in range(len(Gui.SEZNAM_BARV)):
-            tkinter.Button(gumbi, width=5 * Gui.VELIKOST_POLJA, height=2 * Gui.VELIKOST_POLJA,
+            gumb_v_nastajanju = tkinter.Button(gumbi, width=5 * Gui.VELIKOST_POLJA, height=2 * Gui.VELIKOST_POLJA,
                            text=Gui.SEZNAM_BARV[i],
-                           background=Gui.SEZNAM_BARV[i], command=lambda i=i: self.barva_klik(i)).pack(side=tkinter.LEFT, padx=10, pady=5)
+                           background=Gui.SEZNAM_BARV[i], command=lambda i=i: self.barva_klik(i))
+            gumb_v_nastajanju.pack(side=tkinter.LEFT, padx=10, pady=5)
+            self.seznam_gumbov.append(gumb_v_nastajanju)
 
         # levo in desno postavimo label-a z vmesnim rezultatom
         levi_okvir = tkinter.Frame(master)#okvir v katem bosta levo ime in levi rezultat
@@ -62,7 +65,10 @@ class Gui():
         self.ime_igralca2 = tkinter.Entry(master, justify="center")
         self.ime_igralca2.insert(0, "Igralec 2")
         self.ime_igralca2.grid(row=2, column=2, padx=20, sticky="N")
-        # TODO dokončaj oblikovanje, uporabi vnos v prikazu veznega teksta (tj. kdo je na potezi, zmagovalec)
+
+        #  Nastavimo minimalno širino prvega in zadnjega stolpca.
+        root.grid_columnconfigure(0, minsize=150)
+        root.grid_columnconfigure(2, minsize=150)
 
         # okvir za igralno polje:
         self.plosca = tkinter.Frame(master)
@@ -113,11 +119,20 @@ class Gui():
                 self.leva_vrednost.config(font=("Comic Sans", 16))
             else:
                 assert False
+            #  Vključimo/izključimo gumbe.
+            for poteza in range(len(Gui.SEZNAM_BARV)):
+                if poteza in self.logika.veljavne_poteze():
+                    #  Gumb vključimo
+                    self.seznam_gumbov[poteza].config(state="normal", background="{}".format(Gui.SEZNAM_BARV[poteza]))
+                else:
+                    #  Gumb izključimo
+                    defaultbg = root.cget("bg")
+                    self.seznam_gumbov[poteza].config(state="disabled", background=defaultbg)
         else:
             # Igre je konec, metoda naredi_potezo bo s klicanjem drugih metod končala igro.
             pass
 
-    # funkcija, ki ob začetku nove igre nariše novo igralno ploščo.
+    # Funkcija, ki ob začetku nove igre nariše novo igralno ploščo.
     def narisi_polje(self, igralec1, igralec2):
         self.prekini_igralce()
         self.logika = logika.Logika(VELIKOST_IGRALNE_PLOSCE)
@@ -144,20 +159,21 @@ class Gui():
                 polje.grid(row=vrstica, column=stolpec, padx=0.5, pady=0.5)
                 trenutna_vrstica.append(polje)
             self.matrika_polj.append(trenutna_vrstica)
+        for barva in range(len(Gui.SEZNAM_BARV)):
+            if barva not in self.logika.veljavne_poteze():
+                #  Gumb izključimo
+                defaultbg = root.cget("bg")
+                self.seznam_gumbov[barva].config(state="disabled", background=defaultbg)
         self.igralec1.igraj()
-
 
     def barva_klik(self, indeks_barve):
         if self.logika.na_potezi == None:
             pass
         else:
-            if indeks_barve not in self.logika.veljavne_poteze():
-                self.opozorila.config(text="Izberi drugo barvo!")
+            if self.logika.na_potezi == logika.IGRALEC1:
+                self.igralec1.klik(indeks_barve)
             else:
-                if self.logika.na_potezi == logika.IGRALEC1:
-                    self.igralec1.klik(indeks_barve)
-                else:
-                    self.igralec2.klik(indeks_barve)
+                self.igralec2.klik(indeks_barve)
 
     def naredi_potezo(self, p):
         "Naredi potezo, če je ta veljavna."
@@ -263,6 +279,4 @@ if __name__ == "__main__":
     aplikacija = Gui(root, globina)
 
     # Kontrolo prepustimo glavnemu oknu. Funkcija mainloop neha delovati, ko okno zapremo.
-    root.grid_columnconfigure(0, minsize=150)
-    root.grid_columnconfigure(2, minsize=150)
     root.mainloop()
