@@ -49,9 +49,9 @@ class Minimax():
         # TODO
         (prvi_igralec, drugi_igralec) = self.logika.get_rezultat()
         if self.jaz == logika.IGRALEC1:
-            return (prvi_igralec - drugi_igralec, - len(self.logika.zgodovina))
+            return (prvi_igralec - drugi_igralec, prvi_igralec, - len(self.logika.zgodovina))
         elif self.jaz == logika.IGRALEC2:
-            return (drugi_igralec - prvi_igralec, -len(self.logika.zgodovina))
+            return (drugi_igralec - prvi_igralec, drugi_igralec,  -len(self.logika.zgodovina))
         else:
             assert False
 
@@ -60,10 +60,11 @@ class Minimax():
         if self.prekinitev:
             # Sporočili so nam, da moramo prekiniti
             logging.debug("Minimax prekinja, globina = {0}".format(globina))
-            return None, (0, 0)
+            return None, (0, 0, 0)
         zmagovalec = self.logika.stanje_igre()
         if zmagovalec in (logika.IGRALEC1, logika.IGRALEC2, logika.NEODLOCENO):
             return (None, self.vrednost_pozicije())
+            print(str(self.logika.veljavne_poteze))
             # # Igre je konec, vrnemo njeno vrednost
             # if zmagovalec == self.jaz:
             #     return (None, Minimax.ZMAGA)
@@ -81,13 +82,13 @@ class Minimax():
                     # Maksimiziramo
                     najboljsa_poteza = None
                     vrednost_najboljse = (-Minimax.NESKONCNO, 0)
-                    # print(str(self.logika.veljavne_poteze()))
+                    print(str(self.logika.veljavne_poteze()))
                     for p in self.logika.veljavne_poteze():
                         self.logika.naredi_potezo(p)
                         vrednost = self.minimax(globina-1, False)[1]
                         self.logika.razveljavi()
                         # print("vrednost = {}, vrednost najboljše = {}".format(vrednost, vrednost_najboljse))
-                        # print("{0}max ({1}): best = {2}, current = {3}".format("  " * (6 - globina), self.jaz, (vrednost_najboljse, najboljsa_poteza), (vrednost, p)))
+                        print("{0}max ({1}): best = {2}, current = {3}".format("  " * (6 - globina), self.jaz, (vrednost_najboljse, najboljsa_poteza), (vrednost, p)))
                         if vrednost > vrednost_najboljse:
                             vrednost_najboljse = vrednost
                             najboljsa_poteza = p
@@ -101,7 +102,7 @@ class Minimax():
                         self.logika.naredi_potezo(p)
                         vrednost = self.minimax(globina-1, True)[1]
                         self.logika.razveljavi()
-                        # print("{0}min ({1}): best = {2}, current = {3}".format("  " * (6 - globina), self.jaz, (vrednost_najboljse, najboljsa_poteza), (vrednost, p)))
+                        print("{0}min ({1}): best = {2}, current = {3}".format("  " * (6 - globina), self.jaz, (vrednost_najboljse, najboljsa_poteza), (vrednost, p)))
                         if vrednost < vrednost_najboljse:
                             vrednost_najboljse = vrednost
                             najboljsa_poteza = p

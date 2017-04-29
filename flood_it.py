@@ -3,7 +3,7 @@ import argparse   # za argumente iz ukazne vrstice
 import logging    # za odpravljanje napak
 
 # Privzeta minimax globina
-MINIMAX_GLOBINA = 5
+MINIMAX_GLOBINA = 4
 
 import logika
 import clovek
@@ -159,11 +159,16 @@ class Gui():
                 polje.grid(row=vrstica, column=stolpec, padx=0.5, pady=0.5)
                 trenutna_vrstica.append(polje)
             self.matrika_polj.append(trenutna_vrstica)
+
         for barva in range(len(Gui.SEZNAM_BARV)):
             if barva not in self.logika.veljavne_poteze():
                 #  Gumb izključimo
                 defaultbg = root.cget("bg")
                 self.seznam_gumbov[barva].config(state="disabled", background=defaultbg)
+            else:
+                #  Gumb izključimo
+                defaultbg = root.cget("bg")
+                self.seznam_gumbov[barva].config(state="normal", background="{}".format(Gui.SEZNAM_BARV[barva]))
         self.igralec1.igraj()
 
     def barva_klik(self, indeks_barve):
