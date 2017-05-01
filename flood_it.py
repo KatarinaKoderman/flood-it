@@ -57,14 +57,27 @@ class Gui():
         self.desna_vrednost = tkinter.Label(desni_okvir, text="0", font=("Comic Sans", 16), borderwidth=20)
         self.desna_vrednost.pack(side=tkinter.BOTTOM)
 
+        def omejitev_stevila_znakov(event):
+            "funkcija dopušča vnos v Entry do dolžine 15, daljše nize pa skrajša na dožino 15"
+            if len(self.ime_igralca1.get()) > 15:
+                skrajsano_ime = self.ime_igralca1.get()[:15]
+                self.ime_igralca1.delete(0, len(self.ime_igralca1.get()))
+                self.ime_igralca1.insert(0, skrajsano_ime)
+            elif len(self.ime_igralca2.get()) > 15:
+                skrajsano_ime = self.ime_igralca2.get()[:15]
+                self.ime_igralca2.delete(0, len(self.ime_igralca2.get()))
+                self.ime_igralca2.insert(0, skrajsano_ime)
+
         # pod vmesnim rezultatom ustvarimo polje za vnos imen igralcev
         self.ime_igralca1 = tkinter.Entry(master, justify="center")
         self.ime_igralca1.insert(0, "Igralec 1")
         self.ime_igralca1.grid(row=2, column=0, padx=20, sticky="N")
+        self.ime_igralca1.bind(sequence='<KeyRelease>', func=omejitev_stevila_znakov)
 
         self.ime_igralca2 = tkinter.Entry(master, justify="center")
         self.ime_igralca2.insert(0, "Igralec 2")
         self.ime_igralca2.grid(row=2, column=2, padx=20, sticky="N")
+        self.ime_igralca2.bind(sequence='<KeyRelease>', func=omejitev_stevila_znakov)
 
         #  Nastavimo minimalno širino prvega in zadnjega stolpca.
         root.grid_columnconfigure(0, minsize=150)
