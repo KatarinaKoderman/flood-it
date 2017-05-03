@@ -32,11 +32,12 @@ class Minimax():
         self.poteza = None  # Sem napišemo potezo, ko jo najdemo
 
         # Poženemo minimax
-        (poteza, vrednost) = self.izberi_potezo(self.globina, True)
+        spremenljivka = self.izberi_potezo(self.globina, True)
+        poteza, vrednost = spremenljivka
         self.jaz = None
         self.logika = None
         if not self.prekinitev:
-            # Potezo izvedemo v primeru, da nismo bili prekinjeni
+            #Potezo izvedemo v primeru, da nismo bili prekinjeni
             logging.debug("minimax: poteza {0}, vrednost {1}".format(poteza, vrednost))
             self.poteza = poteza
 
@@ -131,32 +132,31 @@ class Minimax():
 
     def izberi_potezo(self, globina, maksimiziramo):
         (najboljse_poteze, vrednost_najboljsih) = self.minimax(globina, maksimiziramo)
-        print ("izberi: najboljse poteze so {}".format(najboljse_poteze))
+        #print ("izberi: najboljse poteze so {}".format(najboljse_poteze))
         if len(najboljse_poteze) == 1:
-            print ("izberi: najboljša poteza je samo ena: {}".format(najboljse_poteze))
+            #print ("izberi: najboljša poteza je samo ena: {}".format(najboljse_poteze))
             najboljsa_poteza = najboljse_poteze.pop()
             return (najboljsa_poteza, vrednost_najboljsih)
         else:
-            print("izberi: našli smo več najboljših potez {}.".format(najboljse_poteze))
+            #print("izberi: našli smo več najboljših potez {}.".format(najboljse_poteze))
             if globina == 1:
                 najboljsa_poteza = random.choice(tuple(najboljse_poteze))
-                print("izberi: globina je 1, izbrali smo {}".format(najboljsa_poteza))
+                #print("izberi: globina je 1, izbrali smo {}".format(najboljsa_poteza))
                 return (najboljsa_poteza, vrednost_najboljsih)
             najboljse_poteze_manjsa_globina = self.minimax(globina-1, maksimiziramo)[0]
-            print("izberi: najboljse poteze na manjsi globini so {}".format(najboljse_poteze_manjsa_globina))
+            #print("izberi: najboljse poteze na manjsi globini so {}".format(najboljse_poteze_manjsa_globina))
             presek = set()
             for poteza in najboljse_poteze:
                 if poteza in najboljse_poteze_manjsa_globina:
                     presek.add(poteza)
-            print("izber: presek je {}".format(presek))
+            #print("izber: presek je {}".format(presek))
             if len(presek) == 0:
                 najboljsa_poteza = random.choice(tuple(najboljse_poteze))
-                print ("presek je bil prazen, izbrali smo {}".format(najboljsa_poteza))
+                #print ("presek je bil prazen, izbrali smo {}".format(najboljsa_poteza))
                 return (najboljsa_poteza, vrednost_najboljsih)
             elif len(presek) == 1:
                 najboljsa_poteza = presek.pop()
-                print ("v preseku je bil en element. Torej vracamo {},{}".format(najboljsa_poteza, vrednost_najboljsih))
+                #print ("v preseku je bil en element. Torej vracamo {},{}".format(najboljsa_poteza, vrednost_najboljsih))
                 return (najboljsa_poteza, vrednost_najboljsih)
             else:
-                self.izberi_potezo(globina-1, maksimiziramo)
-
+                return self.izberi_potezo(globina-1, maksimiziramo)
