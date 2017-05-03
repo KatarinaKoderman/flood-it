@@ -47,15 +47,18 @@ class Minimax_poenostavljen():
     NESKONCNO = 100 * VELIKOST_IGRALNE_PLOSCE * VELIKOST_IGRALNE_PLOSCE  # Več kot zmaga
 
     def vrednost_pozicije(self):
+        # TODO
         (prvi_igralec, drugi_igralec) = self.logika.get_rezultat()
         if self.jaz == logika.IGRALEC1:
-            return prvi_igralec
+            # return (prvi_igralec - drugi_igralec, prvi_igralec, - len(self.logika.zgodovina))
+            return (prvi_igralec - drugi_igralec)
         elif self.jaz == logika.IGRALEC2:
-            return drugi_igralec
+            # return (drugi_igralec - prvi_igralec, drugi_igralec,  -len(self.logika.zgodovina))
+            return (drugi_igralec - prvi_igralec)
         else:
             assert False
 
-    def minimax(self, globina, maksimiziramo):
+    def minimax(self, globina, maksimiziramo, poteze={0, 1, 2, 3, 4, 5}):
         """Glavna metoda minimax."""
         if self.prekinitev:
             # Sporočili so nam, da moramo prekiniti
@@ -65,38 +68,82 @@ class Minimax_poenostavljen():
         if zmagovalec in (logika.IGRALEC1, logika.IGRALEC2, logika.NEODLOCENO):
             # Igre je konec, vrnemo njeno vrednost.
             return (None, (self.vrednost_pozicije()))
+
         elif zmagovalec == logika.NI_KONEC:
+
             # Igre ni konec
             if globina == 0:
+                print("Globina je 0.")
                 return (None, self.vrednost_pozicije())
             else:
                 # Naredimo eno stopnjo minimax
                 if maksimiziramo:
                     # Maksimiziramo
                     najboljsa_poteza = None
-                    vrednost_najboljse = -Minimax_poenostavljen.NESKONCNO
+                    vrednost_najboljse = -Minimax.NESKONCNO
+                    # print(str(self.logika.veljavne_poteze()))
+                    najboljse_poteze = set()
                     for p in self.logika.veljavne_poteze():
-                        self.logika.naredi_potezo(p)
-                        vrednost = self.minimax(globina-1, False)[1]
-                        self.logika.razveljavi()
-                        if vrednost > vrednost_najboljse:
-                            vrednost_najboljse = vrednost
-                            najboljsa_poteza = p
-                    if najboljsa_poteza == None:
-                        najboljsa_poteza = poteza
+                        if p in poteze:
+                            self.logika.naredi_potezo(p)
+                            vrednost = self.minimax(globina-1, False)[1]
+                            self.logika.razveljavi()
+                            print("max: globina = {}, poteza = {}".format(globina, p))
+                            #print("{0}max ({1}): best = {2}, current = {3}".format("  " * (6 - globina), self.jaz, (vrednost_najboljse, najboljsa_poteza), (vrednost, p)))
+                            if vrednost == vrednost_najboljse:
+                                najboljse_poteze.add(p)
+                            elif vrednost > vrednost_najboljse:
+                                najboljse_poteze.clear()
+                                vrednost_najboljse = vrednost
+                                najboljse_poteze.add(p)
+                        else:
+                            pass
+                    if len(najboljse_poteze) > 1:
+                        if globina > 1:
+                            print("max globina = {}, najboljše poteze = {}".format(globina, najboljse_poteze))
+                            self.minimax(globina-1, True, najboljse_poteze)
+                        else:
+                            najboljsa_poteza = random.choice(tuple(najboljse_poteze))
+                    if len(najboljse_poteze) == 1:
+                        print("Najboljše poteze = {}.".format(najboljse_poteze))
+                        najboljsa_poteza = najboljse_poteze.pop()
+                        print("Najboljša poteza je samo ena = {}".format(najboljsa_poteza))
+                    else:
+                        print("max Ni najboljših potez.")
+
                 else:
                     # Minimiziramo
                     najboljsa_poteza = None
-                    vrednost_najboljse = Minimax_poenostavljen.NESKONCNO
+                    vrednost_najboljse = Minimax.NESKONCNO
+                    # print(str(self.logika.veljavne_poteze()))
+                    najboljse_poteze = set()
                     for p in self.logika.veljavne_poteze():
-                        self.logika.naredi_potezo(p)
-                        vrednost = self.minimax(globina-1, True)[1]
-                        self.logika.razveljavi()
-                        if vrednost < vrednost_najboljse:
-                            vrednost_najboljse = vrednost
-                            najboljsa_poteza = p
-                    if najboljsa_poteza == None:
-                        najboljsa_poteza = poteza
+                        if p in poteze:
+                            self.logika.naredi_potezo(p)
+                            vrednost = self.minimax(globina-1, True)[1]
+                            self.logika.razveljavi()
+                            #print("{0}min ({1}): best = {2}, current = {3}".format("  " * (6 - globina), self.jaz, (vrednost_najboljse, najboljsa_poteza), (vrednost, p)))
+                            if vrednost == vrednost_najboljse:
+                                najboljse_poteze.add(p)
+                                print("min Našli smo enakovredno potezo. Množica potez = {}".format(najboljse_poteze))
+                            elif vrednost < vrednost_najboljse:
+                                print("min Našli smo boljšo potezo.")
+                                najboljse_poteze.clear()
+                                vrednost_najboljse = vrednost
+                                najboljse_poteze.add(p)
+                    if len(najboljse_poteze) > 1:
+                        if globina > 1:
+                            print("min globina = {}, najboljše poteze = {}".format(globina, najboljse_poteze))
+                            self.minimax(globina - 1, True, najboljse_poteze)
+                        else:
+                            najboljsa_poteza = random.choice(tuple(najboljse_poteze))
+                    if len(najboljse_poteze) == 1:
+                        print("min Najboljše poteze = {}.".format(najboljse_poteze))
+                        najboljsa_poteza = najboljse_poteze.pop()
+                        print("min Najboljša poteza je samo ena = {}".format(najboljsa_poteza))
+
+                    else:
+                        print("min Ni najboljših potez.")
                 assert (najboljsa_poteza is not None), "minimax: izračunana poteza je None"
                 return (najboljsa_poteza, vrednost_najboljse)
         else:
