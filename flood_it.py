@@ -3,14 +3,16 @@ import argparse   # za argumente iz ukazne vrstice
 import logging    # za odpravljanje napak
 
 # Privzeta minimax globina
-MINIMAX_GLOBINA = 4
+MINIMAX_GLOBINA = 5
 
 import logika
 import clovek
 import racunalnik
 import minimax
+import minimax_poenostavljen
 
 # TODO velikost polja se mora spremeniti, če se spremeni velikost okna
+# TODO minimax je zamenjan z minimax_poenostavljen
 
 # uvedemo parameter:
 VELIKOST_IGRALNE_PLOSCE = 12
@@ -89,7 +91,7 @@ class Gui():
 
         # nariše igralno polje
         # privzeto: zagnana igra je igra človek proti računalniku
-        self.narisi_polje(clovek.Clovek(self), racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE)))
+        self.narisi_polje(clovek.Clovek(self), racunalnik.Racunalnik(self, minimax_poenostavljen.Minimax_poenostavljen(globina, VELIKOST_IGRALNE_PLOSCE)))
 
         # naredimo glavni menu:
         menu = tkinter.Menu(master)
@@ -99,12 +101,12 @@ class Gui():
         menu.add_cascade(label="Nova igra", menu=menu_igra)
         menu_igra.add_command(label="Človek proti računalniku",
                               command=lambda: self.narisi_polje(clovek.Clovek(self),
-                                                                racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
+                                                                racunalnik.Racunalnik(self, minimax_poenostavljen.Minimax_poenostavljen(globina, VELIKOST_IGRALNE_PLOSCE))))
         menu_igra.add_command(label="Človek proti človeku", command=lambda: self.narisi_polje(clovek.Clovek(self),
                                                                                               clovek.Clovek(self)))
         menu_igra.add_command(label="Računalnik proti računalniku",
-                              command=lambda: self.narisi_polje(racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE)),
-                                                                racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
+                              command=lambda: self.narisi_polje(racunalnik.Racunalnik(self, minimax_poenostavljen.Minimax_poenostavljen(globina, VELIKOST_IGRALNE_PLOSCE)),
+                                                                racunalnik.Racunalnik(self, minimax_poenostavljen.Minimax_poenostavljen(globina, VELIKOST_IGRALNE_PLOSCE))))
         # naredimo menu z gumbom razveljavi
         moznosti = tkinter.Menu(menu, tearoff=0)
         menu.add_cascade(label="Možnosti", menu=moznosti)
@@ -152,7 +154,9 @@ class Gui():
         vrstice = VELIKOST_IGRALNE_PLOSCE
         stolpci = VELIKOST_IGRALNE_PLOSCE
         self.opozorila.config(text="Na potezi je {}.".format(self.ime_igralca1.get()))
+        # TODO spremenjeno v pomožna
         self.logika.narisi_polje()
+        #self.logika.narisi_polje_pomozna()
         self.matrika_polj = [] #matrika kvadratov
         self.matrika = self.logika.get_polje()
         self.igralec1 = igralec1
