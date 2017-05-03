@@ -3,7 +3,7 @@ import argparse   # za argumente iz ukazne vrstice
 import logging    # za odpravljanje napak
 
 # Privzeta minimax globina
-MINIMAX_GLOBINA = 5
+MINIMAX_GLOBINA = 3
 
 import logika
 import clovek
@@ -153,9 +153,8 @@ class Gui():
         vrstice = VELIKOST_IGRALNE_PLOSCE
         stolpci = VELIKOST_IGRALNE_PLOSCE
         self.opozorila.config(text="Na potezi je {}.".format(self.ime_igralca1.get()))
-        # TODO spremenjeno v pomožna
-        #self.logika.narisi_polje()
-        self.logika.narisi_polje_pomozna()
+        self.logika.narisi_polje()
+        #self.logika.narisi_polje_pomozna()
         self.matrika_polj = [] #matrika kvadratov
         self.matrika = self.logika.get_polje()
         self.igralec1 = igralec1
