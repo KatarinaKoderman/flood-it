@@ -47,6 +47,30 @@ class Logika():
         self.na_potezi = IGRALEC1
         self.shrani_pozicijo() #shrani pozicijo v zgodovino
 
+    def narisi_polje_pomozna(self):
+        vrstice = self.velikost
+        stolpci = self.velikost
+        self.zgodovina = []
+        self.plosca = []
+        self.levi_rezultat = 0
+        self.desni_rezultat = 0
+        for vrstica in range(vrstice):
+            vrstica_matrike = []
+            for stolpec in range(stolpci):
+                if vrstica == 2 and stolpec == 3:
+                    vrednost = 3
+                elif vrstica <= 4:
+                    vrednost = 0
+                elif vrstica == 8 and stolpec == 10:
+                    vrednost = 4
+                else:
+                    vrednost = 1
+                vrstica_matrike.append(vrednost)
+            self.plosca.append(vrstica_matrike)
+        self.skeniraj_matriko(self.plosca[0][0], IGRALEC1)
+        self.skeniraj_matriko(self.plosca[self.velikost - 1][self.velikost - 1], IGRALEC2)
+        self.na_potezi = IGRALEC1
+        self.shrani_pozicijo() #shrani pozicijo v zgodovino
 
     def get_polje(self):
         '''Vrne matriko polja.'''
