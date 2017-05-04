@@ -35,8 +35,7 @@ class Minimax():
         self.poteza = None  # Sem napišemo potezo, ko jo najdemo.
 
         # Poženemo minimax
-        spremenljivka = self.izberi_potezo(self.globina, True)
-        poteza, vrednost = spremenljivka
+        (poteza, vrednost) = self.izberi_potezo(self.globina, True)
         self.jaz = None
         self.logika = None
         if not self.prekinitev:
@@ -114,9 +113,13 @@ class Minimax():
             assert False, "minimax: nedefinirano stanje igre"
 
     def izberi_potezo(self, globina, maksimiziramo):
-        """Iz množice najboljših potez izbere najboljšo ali njej enakovredno."""
+        """Iz množice najboljših potez izbere najboljšo ali njej enakovredno.
+           Metoda mora vrniti par oblike XX YY... bla bla kaj pa če je prekinjena?"""
         (najboljse_poteze, vrednost_najboljsih) = self.minimax(globina, maksimiziramo)
-        if len(najboljse_poteze) == 1:
+        if najboljse_poteze is None:
+            # bili smo prekinjeni
+            return (None, 0)
+        elif len(najboljse_poteze) == 1:
             # Našli smo le eno najboljšo potezo, jo izberemo:
             najboljsa_poteza = najboljse_poteze.pop()
             return (najboljsa_poteza, vrednost_najboljsih)

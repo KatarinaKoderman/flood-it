@@ -14,6 +14,9 @@ class Racunalnik():
         self.algoritem = algoritem  # algoritem, ki izračuna potezo
         self.mislec = None  # thread, ki razmišlja
 
+    def a_si_ti_kompjuter():
+        return True
+
     def igraj(self):
         """Igraj potezo, ki jo vrne algoritem."""
         # Naredimo vlakno, ki mu podamo kopijo igre (da ne zmede gui-ja).

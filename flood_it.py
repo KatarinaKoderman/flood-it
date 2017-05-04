@@ -49,7 +49,8 @@ class Gui():
         self.seznam_gumbov = []
         for i in range(len(Gui.SEZNAM_BARV)):
             gumb_v_nastajanju = tkinter.Button(gumbi, width=5 * Gui.VELIKOST_POLJA, height=2 * Gui.VELIKOST_POLJA,
-                           text=Gui.SEZNAM_BARV[i],
+                           text=" ",
+                           highlightbackground=Gui.SEZNAM_BARV[i],
                            background=Gui.SEZNAM_BARV[i], command=lambda i=i: self.barva_klik(i))
             gumb_v_nastajanju.pack(side=tkinter.LEFT, padx=10, pady=5)
             self.seznam_gumbov.append(gumb_v_nastajanju)

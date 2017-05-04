@@ -8,6 +8,9 @@ class Clovek():
     def __init__(self, gui):
         self.gui = gui
 
+    def a_si_ti_kompjuter():
+        return False
+
     def igraj(self):
         # Na potezi je uporabnik. Čakamo, da bo kliknil na ploščo.
         # Ko se bo to zgodilo, nas bo Gui obvestil preko metode klik.
