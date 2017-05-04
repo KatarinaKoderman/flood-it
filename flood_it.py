@@ -10,7 +10,7 @@ import argparse   # za argumente iz ukazne vrstice
 import logging    # za odpravljanje napak
 
 # Privzeta minimax globina
-MINIMAX_GLOBINA = 6
+MINIMAX_GLOBINA = 5
 
 import logika
 import clovek
@@ -95,9 +95,7 @@ class Gui():
         self.plosca = tkinter.Frame(master)
         self.plosca.grid(row=1, column=1, rowspan=2)
 
-        # Nariše igralno polje in nastavi oba igralca.
-        # Privzeto: zagnana igra je igra človek proti računalniku.
-        self.narisi_polje(clovek.Clovek(self), racunalnik.Racunalnik(self,minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE)))
+
 
         # Naredimo glavni menu:
         menu = tkinter.Menu(master)
@@ -113,11 +111,16 @@ class Gui():
         menu_igra.add_command(label="Računalnik proti računalniku",
                               command=lambda: self.narisi_polje(racunalnik.Racunalnik(self,minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE)),
                                                                 racunalnik.Racunalnik(self,minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
-        # Naredimo menu z gumbom razveljavi:
-        moznosti = tkinter.Menu(menu, tearoff=0)
-        menu.add_cascade(label="Možnosti", menu=moznosti)
-        moznosti.add_command(label="Razveljavi eno potezo", command=lambda: self.razveljavi_eno_potezo())
-        moznosti.add_command(label="Razveljavi dve potezi", command=lambda: self.razveljavi_dve_potezi())
+        # Naredimo podmenu z gumbom razveljavi:
+        self.moznosti = tkinter.Menu(menu, tearoff=0)
+        menu.add_cascade(label="Možnosti", menu=self.moznosti)
+        self.moznosti.add_command(label="Razveljavi eno potezo", command=lambda: self.razveljavi_eno_potezo())
+        self.moznosti.add_command(label="Razveljavi dve potezi", command=lambda: self.razveljavi_dve_potezi())
+
+        # Nariše igralno polje in nastavi oba igralca.
+        # Privzeto: zagnana igra je igra človek proti računalniku.
+        self.narisi_polje(clovek.Clovek(self),
+                          racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE)))
 
     def posodobi(self):
         """Po potezi posodobi igralno ploščo."""
@@ -156,7 +159,6 @@ class Gui():
 
     def narisi_polje(self, igralec1, igralec2):
         """Ob začetku nove igre nariše novo igralno ploščo."""
-        self.prekini_igralce()
         self.logika = logika.Logika(VELIKOST_IGRALNE_PLOSCE)
         vrstice = VELIKOST_IGRALNE_PLOSCE
         stolpci = VELIKOST_IGRALNE_PLOSCE
@@ -182,6 +184,7 @@ class Gui():
                 trenutna_vrstica.append(polje)
             self.matrika_polj.append(trenutna_vrstica)
 
+
         for barva in range(len(Gui.SEZNAM_BARV)):
             if barva not in self.logika.veljavne_poteze():
                 # Gumb izključimo.
@@ -192,6 +195,10 @@ class Gui():
                 defaultbg = root.cget("bg")
                 self.seznam_gumbov[barva].config(state="normal", background="{}".format(Gui.SEZNAM_BARV[barva]))
         self.igralec1.igraj()
+        # Omogočimo gumbe za razveljavitev potez
+        self.moznosti.entryconfig(1, state=tkinter.NORMAL)
+        self.moznosti.entryconfig(0, state=tkinter.NORMAL)
+
 
     def barva_klik(self, indeks_barve):
         """Odziv na klik uporabnika."""
@@ -227,6 +234,8 @@ class Gui():
 
     def koncaj_igro(self, zmagovalec):
         """Nastavi stanje igre na konec igre."""
+        self.moznosti.entryconfig(1, state=tkinter.DISABLED) # Onemogočimo gumbe za razveljavlitev
+        self.moznosti.entryconfig(0, state=tkinter.DISABLED)
         if zmagovalec == logika.IGRALEC1:
             self.opozorila.config(text="Bravo {}! Zmaga je tvoja!".format(self.ime_igralca1.get()))
             self.leva_vrednost.config(font=("Comic Sans", 20, "bold"))
@@ -254,14 +263,27 @@ class Gui():
 
 #########################################################################
 
-    def razveljavi_eno_potezo(self):  # Uporabno pri igri proti človeku.
-        (pozicija, na_potezi) = self.logika.razveljavi() #iz zgodovine dobimo zadnjo pozicijo in kdo je bil takrat na potezi
+    def razveljavi_eno_potezo(self):# Uporabno pri igri proti človeku.
+        self.prekini_igralce()
+        (pozicija, na_potezi) = self.logika.razveljavi() # Iz zgodovine dobimo zadnjo pozicijo in kdo je bil takrat na potezi
         self.matrika = pozicija
+        if na_potezi == "IGRALEC1":
+            self.igralec1.igraj()
+        else:
+            self.igralec2.igraj()
         self.posodobi()
 
-    def razveljavi_dve_potezi(self): #uporabno pri igri proti računalniku
-        self.razveljavi_eno_potezo()
-        self.razveljavi_eno_potezo()
+    def razveljavi_dve_potezi(self): # Uporabno pri igri proti računalniku
+        self.prekini_igralce()
+        self.logika.razveljavi()
+        (pozicija, na_potezi) = self.logika.razveljavi() # Iz zgodovine dobimo predzadnjo pozicijo in kdo je bil takrat na potezi
+        self.matrika = pozicija
+        if na_potezi == "IGRALEC1":
+            self.igralec1.igraj()
+        else:
+            self.igralec2.igraj()
+        self.posodobi()
+
 
 #########################################################################
 #########################################################################
