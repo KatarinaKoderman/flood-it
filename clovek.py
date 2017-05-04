@@ -1,5 +1,8 @@
-######################################################################
-## Igralec človek
+#########################################################################
+#                                                                       #
+#                             Igralec človek                            #
+#                                                                       #
+#########################################################################
 
 class Clovek():
     def __init__(self, gui):
@@ -15,6 +18,5 @@ class Clovek():
         pass
 
     def klik(self, p):
-        # Povlečemo potezo. Če ni veljavna, se ne zgodi nič.
-        print("Kliknil uporabnik.")
+        """Povlečemo potezo, ki jo je izbral uporabnik."""
         self.gui.naredi_potezo(p)
