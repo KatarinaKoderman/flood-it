@@ -35,8 +35,7 @@ class Minimax():
         self.poteza = None  # Sem napišemo potezo, ko jo najdemo.
 
         # Poženemo minimax
-        spremenljivka = self.izberi_potezo(self.globina, True)
-        poteza, vrednost = spremenljivka
+        (poteza, vrednost) = self.izberi_potezo(self.globina, True)
         self.jaz = None
         self.logika = None
         if not self.prekinitev:
@@ -114,34 +113,20 @@ class Minimax():
             assert False, "minimax: nedefinirano stanje igre"
 
     def izberi_potezo(self, globina, maksimiziramo):
-        """Iz množice najboljših potez izbere najboljšo ali njej enakovredno."""
+        """Iz množice najboljših potez izbere tisto, ki nam v naslednji potezi prinese največ točk."""
         (najboljse_poteze, vrednost_najboljsih) = self.minimax(globina, maksimiziramo)
         if len(najboljse_poteze) == 1:
             # Našli smo le eno najboljšo potezo, jo izberemo:
             najboljsa_poteza = najboljse_poteze.pop()
             return (najboljsa_poteza, vrednost_najboljsih)
         else:
-            # Našli smo več najboljših potez:
-            if globina == 1:
-                # Izmed enakovrednih potez naključno izberemo eno:
-                najboljsa_poteza = random.choice(tuple(najboljse_poteze))
-                return (najboljsa_poteza, vrednost_najboljsih)
-            # Na manjši globini poskušamo izbrati najboljšo potezo:
-            najboljse_poteze_manjsa_globina = self.minimax(globina-1, maksimiziramo)[0]
-            # Naredimo presek najboljših potez na globini globina
-            # in najboljših potez na globini (globina - 1).
-            presek = set()
+            najboljsa_vrednost = -Minimax.NESKONCNO
             for poteza in najboljse_poteze:
-                if poteza in najboljse_poteze_manjsa_globina:
-                    presek.add(poteza)
-            if len(presek) == 0:
-                # Presek na različnih globinah je prazen, naključno izberemo
-                # najboljšo potezo iz množice najboljših potez na večji globini.
-                najboljsa_poteza = random.choice(tuple(najboljse_poteze))
-                return (najboljsa_poteza, vrednost_najboljsih)
-            elif len(presek) == 1:
-                # V preseku je en element, ki je najboljša poteza.
-                najboljsa_poteza = presek.pop()
-                return (najboljsa_poteza, vrednost_najboljsih)
-            else:
-                return self.izberi_potezo(globina-1, maksimiziramo)
+                self.logika.naredi_potezo(poteza)
+                vrednost = self.vrednost_pozicije()
+                if vrednost > najboljsa_vrednost:
+                    najboljsa_vrednost = vrednost
+                    najboljsa_poteza = poteza
+                self.logika.razveljavi()
+            return (najboljsa_poteza, vrednost_najboljsih)
+
