@@ -16,6 +16,7 @@ import logika
 import clovek
 import racunalnik
 import minimax
+import minimax_posodobljen
 
 # TODO velikost polja se mora spremeniti, če se spremeni velikost okna
 
@@ -105,12 +106,12 @@ class Gui():
         menu.add_cascade(label="Nova igra", menu=menu_igra)
         menu_igra.add_command(label="Človek proti računalniku",
                               command=lambda: self.narisi_polje(clovek.Clovek(self),
-                                                                racunalnik.Racunalnik(self,minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
+                                                                racunalnik.Racunalnik(self,minimax_posodobljen.Minimax(globina, VELIKOST_IGRALNE_PLOSCE, []))))
         menu_igra.add_command(label="Človek proti človeku", command=lambda: self.narisi_polje(clovek.Clovek(self),
                                                                                               clovek.Clovek(self)))
         menu_igra.add_command(label="Računalnik proti računalniku",
-                              command=lambda: self.narisi_polje(racunalnik.Racunalnik(self,minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE)),
-                                                                racunalnik.Racunalnik(self,minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
+                              command=lambda: self.narisi_polje(racunalnik.Racunalnik(self,minimax_posodobljen.Minimax(globina, VELIKOST_IGRALNE_PLOSCE, [])),
+                                                                racunalnik.Racunalnik(self,minimax_posodobljen.Minimax(globina, VELIKOST_IGRALNE_PLOSCE, []))))
         # Naredimo podmenu z gumbom razveljavi:
         self.moznosti = tkinter.Menu(menu, tearoff=0)
         menu.add_cascade(label="Možnosti", menu=self.moznosti)
@@ -120,7 +121,7 @@ class Gui():
         # Nariše igralno polje in nastavi oba igralca.
         # Privzeto: zagnana igra je igra človek proti računalniku.
         self.narisi_polje(clovek.Clovek(self),
-                          racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE)))
+                          racunalnik.Racunalnik(self, minimax_posodobljen.Minimax(globina, VELIKOST_IGRALNE_PLOSCE, [])))
 
     def posodobi(self):
         """Po potezi posodobi igralno ploščo."""
