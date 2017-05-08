@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                                Logika igre                            #
@@ -22,6 +23,7 @@ class Logika():
         self.velikost = velikost
         self.polja_igralec1 = [(0, 0)]
         self.polja_igralec2 = [(self.velikost - 1, self.velikost - 1)]
+        self.stevec_potez = 0 # Število potez je omejeno na število polj.
 
     def nasprotnik(self, igralec):
         """Vrne nasprotnika igralca."""
@@ -52,31 +54,6 @@ class Logika():
         self.na_potezi = IGRALEC1
         self.shrani_pozicijo()  # shrani pozicijo v zgodovino
 
-    def narisi_polje_pomozna(self):
-          vrstice = self.velikost
-          stolpci = self.velikost
-          self.zgodovina = []
-          self.plosca = []
-          self.levi_rezultat = 0
-          self.desni_rezultat = 0
-          for vrstica in range(vrstice):
-              vrstica_matrike = []
-              for stolpec in range(stolpci):
-                  if vrstica == 2 and stolpec == 3:
-                      vrednost = 3
-                  elif vrstica <= 4:
-                      vrednost = 0
-                  elif vrstica == 8 and stolpec == 10:
-                      vrednost = 4
-                  else:
-                      vrednost = 1
-                  vrstica_matrike.append(vrednost)
-              self.plosca.append(vrstica_matrike)
-          self.skeniraj_matriko(self.plosca[0][0], IGRALEC1)
-          self.skeniraj_matriko(self.plosca[self.velikost - 1][self.velikost - 1], IGRALEC2)
-          self.na_potezi = IGRALEC1
-          self.shrani_pozicijo() #shrani pozicijo v zgodovino
-
     def get_polje(self):
         """Vrne matriko igralne plošče."""
         return self.plosca
@@ -94,9 +71,11 @@ class Logika():
         if len(self.zgodovina) < 1:  # Ko pridemo do začetnega stanja, funkcija razveljavi ne naredi ničesar.
             return (self.plosca, self.na_potezi)
         # Nastavimo vrednosti iz zgodovine:
+        self.stevec_potez -= 1
         (self.plosca, self.na_potezi, self.polja_igralec1, self.polja_igralec2) = self.zgodovina.pop()
         return (self.plosca, self.na_potezi)
 
+    # TODO metode kopija ne uporabiva nikjer
     def kopija(self):
         """Ustvari kopijo trenutnega stanja."""
         k = Logika(self.velikost)
@@ -128,6 +107,7 @@ class Logika():
         else:
             self.shrani_pozicijo()  # staro pozicijo shranimo v zgodovino
             self.spremeni_matriko(izbrana_barva)
+            self.stevec_potez += 1
             r = self.stanje_igre()
             if r == NI_KONEC:
                 # Igre ni konec, na potezi je nasprotnik.
@@ -188,6 +168,13 @@ class Logika():
             - NI_KONEC, če igre še ni konec."""
         (rezultat_igr1, rezultat_igr2) = self.get_rezultat()
         if rezultat_igr1 + rezultat_igr2 == self.velikost * self.velikost:
+            if rezultat_igr1 > rezultat_igr2:
+                return IGRALEC1
+            elif rezultat_igr1 < rezultat_igr2:
+                return IGRALEC2
+            else:
+                return NEODLOCENO
+        elif self.stevec_potez >= self.velikost**2: # Če igralca naredita več potez kot je polj, se igra konča.
             if rezultat_igr1 > rezultat_igr2:
                 return IGRALEC1
             elif rezultat_igr1 < rezultat_igr2:
