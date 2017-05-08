@@ -76,9 +76,9 @@ class Minimax():
         if zmagovalec in (logika.IGRALEC1, logika.IGRALEC2, logika.NEODLOCENO):
             # Igre je konec, vrnemo njeno vrednost.
             if zmagovalec == self.jaz:
-                return (None, Minimax.ZMAGA)
+                return (None, Minimax.ZMAGA - (len(self.logika.zgodovina) / self.globina))
             elif zmagovalec == self.logika.nasprotnik(self.jaz):
-                return (None, -Minimax.ZMAGA)
+                return (None, Minimax.ZMAGA + (len(self.logika.zgodovina) / self.globina))
             else:
                 return (None, 0)
 
@@ -87,20 +87,20 @@ class Minimax():
             if globina == 0:
                 self.koncno_stanje = self.logika.zgodovina[-1]
                 print("dolžina zgodovine = {}".format(len(self.zgodovina)))
+
+                # Naslednjih 6 vrstic ne rabimo. Če jih ni, program teče nekaj potez dlje.
                 # if self.koncno_stanje in self.logika.zgodovina[:-1]:
-                #     print("Čemu ta reč ne deluje?")
+                #     print("Končno stanje je bilo narejeno v zadnjih {} potezah.".format(self.globina))
                 #     if maksimiziramo:
-                #         print("maksimiziramo")
-                #         return (None, -Minimax.NESKONCNO)
-                #     else:
-                #         print("minimiziramo")
                 #         return (None, Minimax.NESKONCNO)
+                #     else:
+                #         return (None, -Minimax.NESKONCNO)
+
                 if self.koncno_stanje in self.zgodovina:
+                    print("Končno stanje je bilo narejeno že prej.")
                     if maksimiziramo:
-                        print("maksimiziramo")
                         return (None, Minimax.NESKONCNO)
                     else:
-                        print("minimiziramo")
                         return (None, -Minimax.NESKONCNO)
 
                 return (None, self.vrednost_pozicije())
@@ -116,6 +116,7 @@ class Minimax():
 
                         if vrednost > najboljsa_poteza[1]:
                             najboljsa_poteza = (p, vrednost)
+
                 else:
                     # Minimiziramo
                     najboljsa_poteza = (None, Minimax.NESKONCNO + 1)
