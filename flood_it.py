@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                            igra Color Flood                           #
@@ -10,13 +11,12 @@ import argparse   # za argumente iz ukazne vrstice
 import logging    # za odpravljanje napak
 
 # Privzeta minimax globina
-MINIMAX_GLOBINA = 5
+MINIMAX_GLOBINA = 4
 
 import logika
 import clovek
 import racunalnik
 import minimax
-import minimax_posodobljen
 
 # TODO velikost polja se mora spremeniti, če se spremeni velikost okna
 
@@ -106,12 +106,12 @@ class Gui():
         menu.add_cascade(label="Nova igra", menu=menu_igra)
         menu_igra.add_command(label="Človek proti računalniku",
                               command=lambda: self.narisi_polje(clovek.Clovek(self),
-                                                                racunalnik.Racunalnik(self,minimax_posodobljen.Minimax(globina, VELIKOST_IGRALNE_PLOSCE, []))))
+                                                                racunalnik.Racunalnik(self,minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
         menu_igra.add_command(label="Človek proti človeku", command=lambda: self.narisi_polje(clovek.Clovek(self),
                                                                                               clovek.Clovek(self)))
         menu_igra.add_command(label="Računalnik proti računalniku",
-                              command=lambda: self.narisi_polje(racunalnik.Racunalnik(self,minimax_posodobljen.Minimax(globina, VELIKOST_IGRALNE_PLOSCE, [])),
-                                                                racunalnik.Racunalnik(self,minimax_posodobljen.Minimax(globina, VELIKOST_IGRALNE_PLOSCE, []))))
+                              command=lambda: self.narisi_polje(racunalnik.Racunalnik(self,minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE)),
+                                                                racunalnik.Racunalnik(self,minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE))))
         # Naredimo podmenu z gumbom razveljavi:
         self.moznosti = tkinter.Menu(menu, tearoff=0)
         menu.add_cascade(label="Možnosti", menu=self.moznosti)
@@ -121,7 +121,7 @@ class Gui():
         # Nariše igralno polje in nastavi oba igralca.
         # Privzeto: zagnana igra je igra človek proti računalniku.
         self.narisi_polje(clovek.Clovek(self),
-                          racunalnik.Racunalnik(self, minimax_posodobljen.Minimax(globina, VELIKOST_IGRALNE_PLOSCE, [])))
+                          racunalnik.Racunalnik(self, minimax.Minimax(globina, VELIKOST_IGRALNE_PLOSCE)))
 
     def posodobi(self):
         """Po potezi posodobi igralno ploščo."""
@@ -234,19 +234,31 @@ class Gui():
                 self.koncaj_igro(r)
 
     def koncaj_igro(self, zmagovalec):
-        """Nastavi stanje igre na konec igre."""
+        """Nastavi stanje igre na konec igre. Uporabniku onemogoči razveljavitev igre.
+        V vrstico z opozorili izpiše zmagovalca."""
+
         self.moznosti.entryconfig(1, state=tkinter.DISABLED) # Onemogočimo gumbe za razveljavlitev
         self.moznosti.entryconfig(0, state=tkinter.DISABLED)
+        (levi_rezultat, desni_rezultat) = self.logika.get_rezultat()
         if zmagovalec == logika.IGRALEC1:
-            self.opozorila.config(text="Bravo {}! Zmaga je tvoja!".format(self.ime_igralca1.get()))
-            self.leva_vrednost.config(font=("Comic Sans", 20, "bold"))
+            if levi_rezultat + desni_rezultat != VELIKOST_IGRALNE_PLOSCE**2:
+                self.opozorila.config(text="Porabila sta vse poteze. Zmagal je igralec {}.".format(self.ime_igralca1.get()))
+            else:
+                self.opozorila.config(text="Bravo {}! Zmaga je tvoja!".format(self.ime_igralca1.get()))
+                self.leva_vrednost.config(font=("Comic Sans", 20, "bold"))
         elif zmagovalec == logika.IGRALEC2:
-            self.opozorila.config(text="Bravo {}! Zmaga je tvoja!".format(self.ime_igralca2.get()))
-            self.desna_vrednost.config(font=("Comic Sans", 20, "bold"))
+            if levi_rezultat + desni_rezultat != VELIKOST_IGRALNE_PLOSCE**2:
+                self.opozorila.config(text="Porabila sta vse poteze. Zmagal je igralec {}.".format(self.ime_igralca2.get()))
+            else:
+                self.opozorila.config(text="Bravo {}! Zmaga je tvoja!".format(self.ime_igralca2.get()))
+                self.desna_vrednost.config(font=("Comic Sans", 20, "bold"))
         else:
-            self.opozorila.config(text="Igre je konec, rezultat pa neodločen.")
-            self.leva_vrednost.config(font=("Comic Sans", 20, "bold"))
-            self.desna_vrednost.config(font=("Comic Sans", 20, "bold"))
+            if levi_rezultat + desni_rezultat != VELIKOST_IGRALNE_PLOSCE**2:
+                self.opozorila.config(text="Porabila sta vse poteze. Rezultat je neodločen.")
+            else:
+                self.opozorila.config(text="Igre je konec, rezultat pa neodločen.")
+                self.leva_vrednost.config(font=("Comic Sans", 20, "bold"))
+                self.desna_vrednost.config(font=("Comic Sans", 20, "bold"))
 
     def prekini_igralce(self):
         """Igralcem sporoči, da nehajo razmišljati."""
@@ -265,6 +277,7 @@ class Gui():
 #########################################################################
 
     def razveljavi_eno_potezo(self):# Uporabno pri igri proti človeku.
+        """Vrne ploščo na stanje pred zadnjo potezo."""
         self.prekini_igralce()
         (pozicija, na_potezi) = self.logika.razveljavi() # Iz zgodovine dobimo zadnjo pozicijo in kdo je bil takrat na potezi
         self.matrika = pozicija
@@ -275,6 +288,7 @@ class Gui():
         self.posodobi()
 
     def razveljavi_dve_potezi(self): # Uporabno pri igri proti računalniku
+        """Vrne ploščo pred dvema potezama."""
         self.prekini_igralce()
         self.logika.razveljavi()
         (pozicija, na_potezi) = self.logika.razveljavi() # Iz zgodovine dobimo predzadnjo pozicijo in kdo je bil takrat na potezi
