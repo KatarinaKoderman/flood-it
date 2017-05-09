@@ -11,7 +11,7 @@ import argparse   # za argumente iz ukazne vrstice
 import logging    # za odpravljanje napak
 
 # Privzeta minimax globina
-MINIMAX_GLOBINA = 4
+MINIMAX_GLOBINA = 6
 
 import logika
 import clovek
