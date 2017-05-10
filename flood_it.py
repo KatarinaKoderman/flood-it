@@ -1,7 +1,7 @@
 
 #########################################################################
 #                                                                       #
-#                            igra Color Wars                            #
+#                            igra Flood It                              #
 #                                                                       #
 #########################################################################
 
@@ -314,7 +314,7 @@ if __name__ == "__main__":
     # Iz ukazne vrstice poberemo globino za minimax, uporabimo modul argparse.
 
     # Opišemo argumente, ki jih sprejmemo iz ukazne vrstice:
-    parser = argparse.ArgumentParser(description="Igrica Color Wars")
+    parser = argparse.ArgumentParser(description="Igrica Flood It")
     # Argument --globina n, s privzeto vrednostjo MINIMAX_GLOBINA
     parser.add_argument('--globina',
                         default=MINIMAX_GLOBINA,
@@ -334,7 +334,7 @@ if __name__ == "__main__":
 
     # Naredimo glavno okno in nastavimo ime:
     root = tkinter.Tk()
-    root.title("Color Wars")
+    root.title("Flood It")
 
     # Naredimo objekt razreda Gui in ga spravimo v spremenljivko.
     aplikacija = Gui(root, args.globina)

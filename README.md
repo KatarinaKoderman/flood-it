@@ -1,4 +1,4 @@
-# COLOR WARS
+# FLOOD IT
 Barbara Robba, Katarina Koderman
 ## Projektna naloga pri predmetu Programiranje 2
 
@@ -11,7 +11,7 @@ Barbara Robba, Katarina Koderman
 
 ### Navodila za igranje
 
-Igra 'Color Wars' je igra za 2 igralca. Na začetku igre igralcu 1 pripada levi zgornji kot, 
+Igra 'Flood It' je igra za 2 igralca. Na začetku igre igralcu 1 pripada levi zgornji kot, 
 igralcu 2 pa desni spodnji kot tabele, katere polja so (naključno) pobarvana s šestimi barvami. 
 Igralec, ki je na potezi, s pritiskom na gumb izbere barvo, s katero želi pobarvati svoja polja
 (pri tem ne sme izbrati barv, s katerima sta pobarvana levi zgornji in desni spodnji kot). 
@@ -22,13 +22,13 @@ Ob zagonu se začne igra človeka proti računalniku. Drug način igre lahko izb
 ### Opis programa 
 
 Program deluje s pomočjo več datotek:
-* color_wars.py - glavni program, ki ga je potrebno zagnati, če želimo igrati igro.
+* flood_it.py - glavni program, ki ga je potrebno zagnati, če želimo igrati igro.
 * logika.py - nadzoruje potek igre, stanja igre, dogajanja na plošči...
 * minimax.py - algoritem za računanje potez računalnika.
 * racunalnik.py - vsebuje funkcije, ki jih potrebuje računalniški igralec.
 * clovek.py - vsebuje funkcije za potek igre s človeškim igralcem.
 
-V datoteki color_wars.py dopuščamo nekaj sprememb za prilagajanje igre:
+V datoteki flood_it.py dopuščamo nekaj sprememb za prilagajanje igre:
 * S spreminjanjem konstante VELIKOST_IGRALNE_PLOSCE spreminjamo velikost tabele, na kateri igramo.
   Smiselne vrednosti so med 5 in 20. Brez sprememb je velikost igralnega polja enaka 12×12. 
 * Spreminjamo lahko globino delovanja minimaxa tako, da nastavimo konstanto MINIMAX_GLOBINA. 
