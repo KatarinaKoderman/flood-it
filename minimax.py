@@ -17,7 +17,7 @@ class Minimax():
     def __init__(self, globina, velikost):
         self.globina = globina  # Do katere globine iščemo.
         self.prekinitev = False  # Ali moramo končati?
-        self.jaz = None  # Katerega igralca igramo (podatek dobimo kasneje).
+        self.jaz = None  # Katerega igralca igramo (podatek dobimo kasneje)?
         self.poteza = None  # Sem napišemo potezo, ko jo najdemo.
         self.logika = None
 
@@ -44,9 +44,6 @@ class Minimax():
             self.poteza = poteza
 
     # Vrednosti igre
-    # TODO konstant VREDNOST_POLJA in ZMAGA ne uporabljava
-    VREDNOST_POLJA = 1
-    ZMAGA = VELIKOST_IGRALNE_PLOSCE * VELIKOST_IGRALNE_PLOSCE - 1
     NESKONCNO = 100 * VELIKOST_IGRALNE_PLOSCE * VELIKOST_IGRALNE_PLOSCE  # Več kot zmaga
 
     def vrednost_pozicije(self):
@@ -72,13 +69,13 @@ class Minimax():
             return (None, (self.vrednost_pozicije()))
 
         elif zmagovalec == logika.NI_KONEC:
-            # Igre ni konec
+            # Igre ni konec:
             if globina == 0:
                 return (None, self.vrednost_pozicije())
             else:
                 # Naredimo eno stopnjo minimax:
                 if maksimiziramo:
-                    # Maksimiziramo
+                    # Maksimiziramo:
                     vrednost_najboljse = -Minimax.NESKONCNO
                     najboljse_poteze = set()
                     for p in self.logika.veljavne_poteze():
@@ -93,7 +90,7 @@ class Minimax():
                             najboljse_poteze.add(p)
 
                 else:
-                    # Minimiziramo
+                    # Minimiziramo:
                     vrednost_najboljse = Minimax.NESKONCNO
                     najboljse_poteze = set()
                     for p in self.logika.veljavne_poteze():
@@ -113,9 +110,13 @@ class Minimax():
             assert False, "minimax: nedefinirano stanje igre"
 
     def izberi_potezo(self, globina, maksimiziramo):
-        """Iz množice najboljših potez izbere tisto, ki nam v naslednji potezi prinese največ točk."""
+        """Iz množice najboljših potez izbere tisto, ki nam v naslednji potezi prinese največ točk.
+        Vrne par (najboljša poteza, vrednost te poteze) oziroma (None, 0), če smo bili prekinjeni."""
         (najboljse_poteze, vrednost_najboljsih) = self.minimax(globina, maksimiziramo)
-        if len(najboljse_poteze) == 1:
+        if najboljse_poteze is None:
+            # Bili smo prekinjeni.
+            return (None, 0)
+        elif len(najboljse_poteze) == 1:
             # Našli smo le eno najboljšo potezo, jo izberemo:
             najboljsa_poteza = najboljse_poteze.pop()
             return (najboljsa_poteza, vrednost_najboljsih)
