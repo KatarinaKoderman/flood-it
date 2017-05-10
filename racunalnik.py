@@ -8,6 +8,7 @@ import threading
 import minimax
 import logging
 
+
 class Racunalnik():
     def __init__(self, gui, algoritem):
         self.gui = gui
@@ -16,7 +17,7 @@ class Racunalnik():
 
     def igraj(self):
         """Igraj potezo, ki jo vrne algoritem."""
-        # Naredimo vlakno, ki mu podamo kopijo igre (da ne zmede gui-ja).
+        # Naredimo vlakno, ki mu podamo kopijo igre (da ne zmede Gui-ja).
         self.mislec = threading.Thread(
             target=lambda: self.algoritem.izracunaj_potezo(self.gui.logika.kopija()))
 
