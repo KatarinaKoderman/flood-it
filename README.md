@@ -1,4 +1,4 @@
-# FLOOD IT
+# FLOOD WARS
 Barbara Robba, Katarina Koderman
 ## Projektna naloga pri predmetu Programiranje 2
 
