@@ -12,7 +12,8 @@ IGRALEC1 = "IGRALEC1"  # igralec, ki začne v zgornjem levem kotu
 IGRALEC2 = "IGRALEC2"  # igralec, ki začne v spodnjem desnem kotu
 NEODLOCENO = "neodločeno"
 NI_KONEC = "ni konec"
-# VELIKOST_IGRALNE_PLOŠČE lahko spreminjamo v Gui-ju.
+
+# VELIKOST_IGRALNE_PLOŠČE lahko spreminjamo v Gui-ju v datoteki flood_it.py
 
 
 class Logika():
@@ -23,7 +24,7 @@ class Logika():
         self.velikost = velikost
         self.polja_igralec1 = [(0, 0)]
         self.polja_igralec2 = [(self.velikost - 1, self.velikost - 1)]
-        self.stevec_potez = 0 # Število potez je omejeno na število polj.
+        self.stevec_potez = 0  # Število potez je omejeno na število polj.
 
     def nasprotnik(self, igralec):
         """Vrne nasprotnika igralca."""
@@ -36,23 +37,21 @@ class Logika():
 
     def narisi_polje(self):
         """Ob začetku nove igre nariše novo igralno ploščo."""
-        # Ustvarimo matriko vrednosti self.plosca
+        # Ustvarimo matriko self.plosca z vrednostmi barv
         vrstice = self.velikost
         stolpci = self.velikost
         self.zgodovina = []
         self.plosca = []
-        self.levi_rezultat = 0
-        self.desni_rezultat = 0
         for vrstica in range(vrstice):
-            vrstica_matrike = []  # vrstica matrike self.plosca
+            vrstica_plosce = []
             for stolpec in range(stolpci):
                 vrednost = random.randint(0, 5)
-                vrstica_matrike.append(vrednost)
-            self.plosca.append(vrstica_matrike)
-        self.skeniraj_matriko(self.plosca[0][0], IGRALEC1)
-        self.skeniraj_matriko(self.plosca[self.velikost - 1][self.velikost - 1], IGRALEC2)
+                vrstica_plosce.append(vrednost)
+            self.plosca.append(vrstica_plosce)
+        self.skeniraj_plosco(self.plosca[0][0], IGRALEC1)
+        self.skeniraj_plosco(self.plosca[self.velikost - 1][self.velikost - 1], IGRALEC2)
         self.na_potezi = IGRALEC1
-        self.shrani_pozicijo()  # shrani pozicijo v zgodovino
+        self.shrani_pozicijo()  # Pozicijo shranimo v zgodovino.
 
     def get_polje(self):
         """Vrne matriko igralne plošče."""
@@ -64,6 +63,7 @@ class Logika():
         p = []
         for vrstica in range(self.velikost):
             p.append(self.plosca[vrstica][:])
+
         self.zgodovina.append((p, self.na_potezi, self.polja_igralec1, self.polja_igralec2))
 
     def razveljavi(self):
@@ -75,7 +75,6 @@ class Logika():
         (self.plosca, self.na_potezi, self.polja_igralec1, self.polja_igralec2) = self.zgodovina.pop()
         return (self.plosca, self.na_potezi)
 
-    # TODO metode kopija ne uporabiva nikjer
     def kopija(self):
         """Ustvari kopijo trenutnega stanja."""
         k = Logika(self.velikost)
@@ -105,7 +104,7 @@ class Logika():
         if izbrana_barva not in self.veljavne_poteze():
             return None  # neveljavna poteza
         else:
-            self.shrani_pozicijo()  # staro pozicijo shranimo v zgodovino
+            self.shrani_pozicijo()  # Staro pozicijo shranimo v zgodovino.
             self.spremeni_matriko(izbrana_barva)
             self.stevec_potez += 1
             r = self.stanje_igre()
@@ -117,7 +116,7 @@ class Logika():
             return r
 
     def spremeni_matriko(self, p):
-        """Vrne stanje igre po potezi."""
+        """Nastavi stanje igre na stanje po potezi."""
         igralec = self.na_potezi
         if igralec == IGRALEC1:
             for (vrstica, stolpec) in self.polja_igralec1:
@@ -127,9 +126,9 @@ class Logika():
                 self.plosca[vrstica][stolpec] = p
         else:
             assert False
-        self.skeniraj_matriko(p, igralec)
+        self.skeniraj_plosco(p, igralec)
 
-    def skeniraj_matriko(self, p, igralec):
+    def skeniraj_plosco(self, p, igralec):
         """Pregleda matriko in jo glede na potezo in igralca spremeni."""
         if igralec == IGRALEC1:
             polje = (0, 0)
@@ -146,16 +145,16 @@ class Logika():
         (i, j) = polje
         if self.plosca[i][j] == p and polje not in polja:
             polja.append(polje)
-            #desno
+            # desno
             if j < self.velikost - 1:
                 self.preglej_sosednja_polja((i, j + 1), p, polja)
-            #dol
+            # dol
             if i < self.velikost - 1:
                 self.preglej_sosednja_polja((i + 1, j), p, polja)
-            #levo
+            # levo
             if j > 0:
                 self.preglej_sosednja_polja((i, j - 1), p, polja)
-            #gor
+            # gor
             if i > 0:
                 self.preglej_sosednja_polja((i - 1, j), p, polja)
         return polja
@@ -167,14 +166,8 @@ class Logika():
             - neodločeno, če je igre konec in imata igralca enak rezulat,
             - NI_KONEC, če igre še ni konec."""
         (rezultat_igr1, rezultat_igr2) = self.get_rezultat()
-        if rezultat_igr1 + rezultat_igr2 == self.velikost * self.velikost:
-            if rezultat_igr1 > rezultat_igr2:
-                return IGRALEC1
-            elif rezultat_igr1 < rezultat_igr2:
-                return IGRALEC2
-            else:
-                return NEODLOCENO
-        elif self.stevec_potez >= self.velikost**2: # Če igralca naredita več potez kot je polj, se igra konča.
+        if rezultat_igr1 + rezultat_igr2 == self.velikost * self.velikost \
+                or self.stevec_potez >= self.velikost ** 2:
             if rezultat_igr1 > rezultat_igr2:
                 return IGRALEC1
             elif rezultat_igr1 < rezultat_igr2:
