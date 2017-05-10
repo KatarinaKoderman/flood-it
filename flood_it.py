@@ -1,7 +1,7 @@
 
 #########################################################################
 #                                                                       #
-#                            igra Color Flood                           #
+#                            igra Color Wars                            #
 #                                                                       #
 #########################################################################
 
@@ -314,7 +314,7 @@ if __name__ == "__main__":
     # Iz ukazne vrstice poberemo globino za minimax, uporabimo modul argparse.
 
     # Opišemo argumente, ki jih sprejmemo iz ukazne vrstice:
-    parser = argparse.ArgumentParser(description="Igrica color flood")
+    parser = argparse.ArgumentParser(description="Igrica Color Wars")
     # Argument --globina n, s privzeto vrednostjo MINIMAX_GLOBINA
     parser.add_argument('--globina',
                         default=MINIMAX_GLOBINA,
