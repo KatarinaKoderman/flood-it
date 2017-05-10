@@ -45,7 +45,16 @@ class Logika():
         for vrstica in range(vrstice):
             vrstica_plosce = []
             for stolpec in range(stolpci):
-                vrednost = random.randint(0, 5)
+                vrednosti = []
+                for i in range(6):
+                    vrednosti.append(i)
+                if vrstica > 0:
+                    vrednosti.remove(self.plosca[vrstica - 1][stolpec])
+                if len(vrstica_plosce) > 1:
+                    vrednost_na_levi = vrstica_plosce[-1]
+                    if stolpec > 0 and vrednost_na_levi in vrednosti:
+                        vrednosti.remove(vrednost_na_levi)
+                vrednost = random.choice(vrednosti)
                 vrstica_plosce.append(vrednost)
             self.plosca.append(vrstica_plosce)
         self.skeniraj_plosco(self.plosca[0][0], IGRALEC1)
